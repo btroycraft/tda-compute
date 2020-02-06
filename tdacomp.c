@@ -1,132 +1,184 @@
-typedef struct{
-	bdry_col* colNext;
-	int lengthIndices;
-}
-bdry_mat;
+#include <pthread.h>
+
+#define COLUMN_POOL_PAGE_SIZE 10
+#define ROW_POOL_PAGE_SIZE 10
 
 typedef struct{
-	bdry_col* colNext;
-	bdry_row* rowNext;
-	int lengthCol;
-	int* indices;
+	col colInit;
 }
-bdry_col;
+mat;
 
 typedef struct{
-	bdry_row* rowNext;
-	int* indices;
+	col* colNext;
+	row rowInit;
+	simplex* simplex;
+	pthread_mutex_t mutex;
 }
-bdry_row;
+col;
 
 typedef struct{
-		bdry_pivot* pivotNext;
-		int* indices;
-		int* indicesPivot;
+	row* rowNext;
+	simplex* simplex;
 }
-bdry_pivot;
-
-
-
-bdry_mat*
-bdry_createMat(bdry_mat* mat){
-	
-	return (bdry_mat*) memcpy(malloc(sizeof(bdry_mat)), mat, sizeof(bdry_mat));
-}
-
-bdry_col*
-bdry_createCol(bdry_col* col){
-	
-	return (bdry_col*) memcpy(malloc(sizeof(bdry_col)), col, sizeof(bdry_col));
-}
-
-bdry_row*
-bdry_createRow(bdry_row* row){
-	
-	return (bdry_row*) memcpy(malloc(sizeof(bdry_row)), row, sizeof(bdry_row));
-}
-
-bdry_pivot*
-bdry_createPivot(bdry_pivot* pivot){
-	
-	return memcpy(malloc(sizeof(bdry_pivot)), pivot, sizeof(bdry_pivot));
-}
-	
-int*
-bdry_createIndices(int* indices, int lengthIndices){
-	
-	return memcpy(malloc(lengthIndices*sizeof(int)), &indices, sizeof(lengthIndices*sizeof(int)));
-}
+row;
 
 void
-bdry_deleteMat(bdry_mat* mat){
+incorporate_column_into_matrix(col* columnToIncorporate, mat* boundaryMatrix,
+	col* columnPoolInitial, col* columnPoolMarginInitial, int* columnPoolMarginSize, int* numberOfColumnPoolPagesToRequest,
+	row* rowPoolInitial, row* rowPoolMarginInitial, int* rowPoolMarginSize, int* numberOfRowPoolPagesToRequest){
 	
-	free(mat);
+	// This function takes a column an existing column in list form and places the column into an existing boundary matrix
+	// Insertion and reduction are performed based on a sorting criterion
+	// Every column less than the working column is used to reduce the working column
+	// After reduction, the working column is added into the matrix and used to reduce the remaining columns
+	
+	col* columnPrevious, columnCurrent, columnNext;
+	
+	// Initializes the active columns and acquires necessary mutexes
+	
+	columnPrevious = &(boundaryMatrix->colInit);
+	pthread_mutex_lock(columnPrevious->mutex);
+	columnCurrent = columnPrevious->colNext;
+	
+	if(columnCurrent == NULL){
+		
+		// If initial column hasn't been created yet, just add the working column to the matrix
+		
+		columnPrevious->colNext = columnToIncorporate;
+		pthread_mutex_unlock(columnPrevious->mutex);
+		
+		// Return nodes to shared pool
+		
+		return_column_pool(columnPoolInitial, columnPoolMarginInitial, columnPoolMarginSize);
+		return_row_pool(rowPoolInitial, rowPoolMarginInitial, rowPoolMarginSize);
+		
+		return;
+	}
+	
+	pthread_mutex_lock(columnCurrent->mutex);
+	columnNext = columnCurrent->colNext;
+	
+	if(columnNext != NULL){
+		
+		pthread_mutex_lock(columnNext->mutex);
+	}
+	
+	while(columnCurrent != NULL && compareSimplexParameters(columnToIncorporate->simplex, columnCurrent->simplex) >= 0){
+		
+		// Reduce the working column against the matrix columns until simplex parameter is lesser
+		
+		columnNext = columnCurrent->colNext;
+		if(columnNext != NULL){
+			
+			pthread_mutex_lock(columnNext->mutex);
+		}
+		
+		if(reduce_column_against_column(columnToIncorporate, columnCurrent,
+			rowPoolInitial, rowPoolMarginInitial, rowPoolMarginSize, numberOfRowPoolPagesToRequest) == 1){
+			
+			// If the working column is completely canceled, remove
+			
+			remove_column(columnToIncorporate, NULL, columnPoolInitial, columnPoolMarginInitial, columnPoolMarginSize);
+			
+			// Return nodes to shared pool
+			
+			return_column_pool(columnPoolInitial, columnPoolMarginInitial, columnPoolMarginSize);
+			return_row_pool(rowPoolInitial, rowPoolMarginInitial, rowPoolMarginSize);
+			
+			return 0;
+		}
+		
+		pthread_mutex_unlock(columnPrevious->mutex);
+		
+		columnPrevious = columnCurrent;
+		columnCurrent = columnNext;
+	}
+	
+	// Add working column into the matrix at its proper parameter level
+	
+	columnPrevious->colNext = columnToIncorporate;
+	columnToIncorporate->colNext = columnCurrent;
+	
+	pthread_mutex_init(columnToIncorporate->mutex);
+	pthread_mutex_lock(columnToIncorporate->mutex);
+	
+	pthread_mutex_unlock(columnPrevious->mutex);
+	
+	columnPrevious = columnToIncorporate;
+	
+	columnToIncorporate = copy_column(columnToIncorporate,
+		columnPoolInitial, columnPoolMarginInitial, columnPoolMarginSize, numberOfColumnPoolPagesToRequest,
+		rowPoolInitial, rowPoolMarginInitial, rowPoolMarginSize, numberOfRowPoolPagesToRequest);
+	
+	while(columnCurrent != NULL){
+		
+		// Reduce the succeeding matrix columns using the working column
+		
+		columnNext = columnCurrent->colNext;
+		if(columnNext != NULL){
+			
+			pthread_mutex_lock(columnNext->mutex);
+		}
+		
+		if(reduce_column_against_column(columnCurrent, columnToIncorporate,
+			rowPoolInitial, rowPoolMarginInitial, rowPoolMarginSize, numberOfRowPoolPagesToRequest) == 1){
+			
+			// If the current column is completely canceled, remove and keep previous column the same
+			
+			pthread_mutex_unlock(columnCurrent->mutex);
+			pthread_mutex_destroy(columnCurrent->mutex);
+			
+			remove_column(columnCurrent, columnPrevious, columnPoolInitial, columnPoolMarginInitial, columnPoolMarginSize);
+		} else {
+			
+			// Else move the previous column up one
+			
+			pthread_mutex_unlock(columnPrevious->mutex);
+			
+			columnPrevious = columnCurrent;
+		}
+		
+		columnCurrent = columnNext;
+	}
+	
+	// Remove the temporary working column
+	
+	remove_column(columnToIncorporate, NULL,
+		columnPoolInitial, columnPoolMarginInitial, columnPoolMarginSize,
+		rowPoolInitial, rowPoolMarginInitial, rowPoolMarginSize);
 	
 	return;
-}
+}	
 
-bdry_col*
-bdry_deleteCol(bdry_col* col){
+static void
+remove_column(col* columnToRemove, col* columnPrevious,
+	col* columnPoolInitial, col* columnPoolMarginInitial, int* columnPoolMarginSize,
+	row* rowPoolInitial, row* rowPoolMarginInitial, int* rowPoolMarginSize){
 	
-	bdry_col* colNext = col->colNext;
+	row* rowPrevious = &(columnToRemove->rowInit);
 	
-	free(col);
-	
-	return colNext;
-}
-
-bdry_row*
-bdry_deleteRow(bdry_row* row){
-	
-	bdry_row* rowNext = row->rowNext;
-	
-	free(row);
-	
-	return rowNext;
-}
-
-bdry_pivot*
-bdry_deletePivot(bdry_pivot* pivot){
-	
-	bdry_pivot* pivotNext = pivot->pivotNext;
-	
-	free(pivot);
-	
-	return pivotNext;
-}
-
-void
-bdry_deleteIndices(int* indices){
-	
-	//	This function deletes the integer array located at the provided address.
-	
-	free(indices);
-	
-	return;
-}
-
-
-
-void
-bdry_convertRowListToArray(bdry_col* col){
-
-	bdry_row* rowList = col->rowNext;
-	int** rowArray = (int**) malloc(col->lengthCol*sizeof(int*));
-	int iter = 0;
-	
-	while(rowList != NULL){
+	while(rowPrevious->rowNext != NULL){
 		
-		rowArray[iter] = rowList->indices;
-		
-		rowList = bdry_deleteRow(rowList);
-		++iter;
+		remove_row(rowPrevious->rowNext, rowPrevious, rowPoolInitial, rowPoolMarginInitial, rowPoolMarginSize);
 	}
 	
 	return;
 }
 
+static void
+reduce_column_against_column(){	
+	
+	return;
+}
+
+static void
+reduce_column_against_column(){	
+	
+	return;
+}
+
 void
-bdry_addPivotColToCol(bdry_col* colPivot, bdry_col* col, int lengthIndices){	
+bdry_add_pivot_col_to_col(bdry_col* colPivot, bdry_col* col, int lengthIndices){	
 	
 	bdry_row* rowArrayPivot = colPivot->rowNext;
 	bdry_row** rowList = &(col->rowNext);
@@ -138,7 +190,7 @@ bdry_addPivotColToCol(bdry_col* colPivot, bdry_col* col, int lengthIndices){
 	
 	while(*rowList != NULL){
 		
-		switch(bdry_compareIndices(rowArrayPivot[iter], (*rowList)->indices, lengthIndices)){
+		if(bdry_compareIndices(rowArrayPivot[iter], (*rowList)->indices, lengthIndices)){
 			case -1:
 				return;
 			case 0:
@@ -183,7 +235,7 @@ bdry_addPivotColToCol(bdry_col* colPivot, bdry_col* col, int lengthIndices){
 }
 
 void
-bdry_addPivotRowToRow(bdry_col* colPivot, bdry_col* col, int* indicesPivot, int lengthIndices){
+bdry_add_pivot_row_to_row(bdry_col* colPivot, bdry_col* col, int* indicesPivot, int lengthIndices){
 	
 	bdry_row* rowArrayPivot = colPivot->rowNext;
 	bdry_row** rowList = &(col->rowNext);
@@ -239,7 +291,7 @@ bdry_addPivotRowToRow(bdry_col* colPivot, bdry_col* col, int* indicesPivot, int 
 }
 
 int
-bdry_compareIndices(int indices1[], int indices2[], int lengthIndices){
+bdry_compare_indices(int indices1[], int indices2[], int lengthIndices){
 	
 	// This function compares two arrays of indices lexicographically. lengthIndices is the length
 	// of each integer array. Arrays must be of comparable size. Output is -1 if the first
@@ -261,7 +313,7 @@ bdry_compareIndices(int indices1[], int indices2[], int lengthIndices){
 }
 
 int*
-bdry_extractPivotIndices(bdry_col* col, bdry_pivot** pivot, int lengthIndices){
+bdry_extract_pivot_indices(bdry_col* col, bdry_pivot** pivot, int lengthIndices){
 	
 	bdry_row** row = &(col->rowNext);
 	
@@ -293,7 +345,7 @@ bdry_extractPivotIndices(bdry_col* col, bdry_pivot** pivot, int lengthIndices){
 }
 
 void
-bdry_convertNonPivotIndices(bdry_col* col, bdry_pivot* pivot, int lengthIndices){
+convert_nonpivot_indices(bdry_col* col, bdry_pivot* pivot, int lengthIndices){
 	
 	bdry_row** row = &(col->rowNext);
 	
@@ -319,7 +371,7 @@ bdry_convertNonPivotIndices(bdry_col* col, bdry_pivot* pivot, int lengthIndices)
 
 
 void
-bdry_colSpaceBasis(bdry_mat* mat){
+col_space_basis(bdry_mat* mat){
 	
 	bdry_col* colPivot = mat->colNext;
 	bdry_col** col;
