@@ -7,7 +7,7 @@
 #include "integer_vector.h"
 #include "simplicial_complex.h"
 
-double test_func(int *, int, void *);
+double test_func(const int *, const int, const void *);
 
 
 int main(void)
