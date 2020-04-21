@@ -7,26 +7,26 @@
 #include "integer_vector.h"
 #include "simplicial_complex.h"
 
-double test_func(int *, int, void*);
+double test_func(int *, int, void *);
+
 
 int main(void)
 {
   
-  
   Simplex_Vector *simplicialComplex = generate_simplicial_complex(&test_func, NULL, 5, 3, 0);
-  if(Simplex_Vector == NULL){
+  if(simplicialComplex == NULL){
     return 1;
   }
   Simplex *workingSimplex;
   
-  for(int i = 0; i <= 3, i++){
-    workingSimplex = &simplicialComplex[i]->initialSimplex;
+  for(int i = 0; i <= 3; i++){
+    workingSimplex = simplicialComplex[i].initialSimplex;
     for(int j = 0; j < simplicialComplex->currentCapacity; j++){
-      for(int k = 0; k <= simplicialComplex[i]->simplexDimension; k++){
+      for(int k = 0; k <= simplicialComplex[i].simplexDimension; k++){
         printf("%d", (&workingSimplex->initialVertex)[k]);
       }
       printf("\n");
-      workingSimplex = (Simplex *) ((int *) (workingSimplex + 1) + simplicialComplex[i]->simplexDimension);
+      workingSimplex = (Simplex *) ((int *) (workingSimplex + 1) + simplicialComplex[i].simplexDimension);
     }
     printf("\n********\n\n");
   }
@@ -36,7 +36,8 @@ int main(void)
   return 0;
 }
 
-double test_func(const int *simplex, const int simplexDimension, const void* filtrationFunctionParameters){
+
+double test_func(const int *simplex, const int simplexDimension, const void *filtrationFunctionParameters){
   
   for(int i = 0; i <= simplexDimension; i++){
     switch(simplex[i]){
