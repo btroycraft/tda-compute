@@ -44,7 +44,7 @@ bool append_simplex_to_vector(const Simplex *const simplexToAppend, Simplex_Vect
   
   memcpy(workingSimplex, simplexToAppend, sizeof(Simplex) + destinationSimplexVector->simplexDimension * sizeof(int));
   
-  destinationSimplexVector->currentSize++;
+  ++destinationSimplexVector->currentSize;
   
   return VECTOR_APPEND_SUCCESS;
 }

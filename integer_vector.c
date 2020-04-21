@@ -41,7 +41,7 @@ bool append_integer_to_vector(const int integerToAppend, Integer_Vector *const d
   }
   
   destinationIntegerVector->initialInteger[destinationIntegerVector->currentSize] = integerToAppend;
-  destinationIntegerVector->currentSize++;
+  ++destinationIntegerVector->currentSize;
   
   return VECTOR_APPEND_SUCCESS;
 }
