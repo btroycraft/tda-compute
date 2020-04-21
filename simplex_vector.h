@@ -6,6 +6,8 @@
 #include <stdbool.h>
 #include <string.h>
 
+#define SIMPLEX_VECTOR_DEBUG_ON
+
 #ifndef SIMPLEX_VECTOR_INITIAL_CAPACITY
 #define SIMPLEX_VECTOR_INITIAL_CAPACITY 4
 #endif

@@ -6,6 +6,8 @@
 #include <stdbool.h>
 #include <string.h>
 
+#define INTEGER_VECTOR_DEBUG_ON
+
 #ifndef INTEGER_VECTOR_INITIAL_CAPACITY
 #define INTEGER_VECTOR_INITIAL_CAPACITY 4
 #endif
