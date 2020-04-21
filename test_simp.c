@@ -31,6 +31,9 @@ int main(void)
     printf("\n********\n\n");
   }
   
+  for(int i = 0; i <= 3; i++){
+    free_simplex_vector(simplicialComplex[i]->initialSimplex);
+  }
   free(simplicialComplex);
   
   return 0;
