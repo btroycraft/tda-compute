@@ -35,7 +35,7 @@ Simplex_Vector *generate_simplicial_complex(double (*const filtrationFunction)(i
           simplexGenerationFlag = VECTOR_ALLOCATION_FAILURE;
           break;
         }
-        if(append_integer_to_vector(j, vertexCandidates) == VECTOR_ALLOCATION_FAILURE)){
+        if(append_integer_to_vector(i, vertexCandidates) == VECTOR_ALLOCATION_FAILURE){
           simplexGenerationFlag = VECTOR_ALLOCATION_FAILURE;
           break;
         }
