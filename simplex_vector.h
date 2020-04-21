@@ -46,7 +46,7 @@ Simplex_Vector;
 
 bool initiate_simplex_vector(Simplex_Vector *);
 bool resize_simplex_vector(Simplex_Vector *);
-bool append_simplex_to_vector(const Simplex *, Simplex_Vector *);
+bool append_simplex_to_vector(Simplex *, Simplex_Vector *);
 void free_simplex_vector(Simplex_Vector *);
 
 #endif
