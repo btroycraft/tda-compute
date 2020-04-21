@@ -5,7 +5,7 @@
 
 #include "integer_vector.h"
 
-bool resize_integer_vector(Integer_Vector *const);
+static bool resize_integer_vector(Integer_Vector *const);
 
 
 bool initialize_integer_vector(Integer_Vector *const integerVectorToInitialize)

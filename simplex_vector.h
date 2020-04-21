@@ -46,7 +46,6 @@ typedef struct Simplex_Vector{
 Simplex_Vector;
 
 bool initiate_simplex_vector(Simplex_Vector *const);
-bool resize_simplex_vector(Simplex_Vector *const);
 bool append_simplex_to_vector(const Simplex *const, Simplex_Vector *const);
 void free_simplex_vector(Simplex_Vector *const);
 
