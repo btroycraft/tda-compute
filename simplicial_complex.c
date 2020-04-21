@@ -6,11 +6,8 @@
 #include "integer_vector.h"
 #include "simplicial_complex.h"
 
-typedef Simplicial_Complex {
-  
-} Simplicial_Complex
-
 bool generate_simplicial_complex_recursively(double (*)(int *, int, void *), void *, int, double, Simplex_Vector *, Simplex *, Integer_Vector *, Integer_Vector *)
+
 
 Simplex_Vector *generate_simplicial_complex(const double (*filtrationFunction)(int *, int, void *), const void *filtrationFunctionParameters, const int largestVertex, const int maximumSimplexDimension, const double maximumFiltrationParameter)
 {
