@@ -89,7 +89,7 @@ static bool generate_simplicial_complex_recursively(double (*const filtrationFun
     }
     
     if(destinationSimplexVector->simplexDimension < maximumSimplexDimension){
-      if(generate_simplicial_complex_recursively(filtrationFunction, maximumSimplexDimension, maximumFiltrationParameter, destinationSimplexVector+1, simplexCandidate, newVertexCandidates, newVertexCandidates+1) == VECTOR_ALLOCATION_FAILURE){
+      if(generate_simplicial_complex_recursively(filtrationFunction, filtrationFunctionParameters, maximumSimplexDimension, maximumFiltrationParameter, destinationSimplexVector+1, simplexCandidate, newVertexCandidates, newVertexCandidates+1) == VECTOR_ALLOCATION_FAILURE){
         return VECTOR_ALLOCATION_FAILURE;
       }
     }
