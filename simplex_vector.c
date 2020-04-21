@@ -5,7 +5,7 @@
 
 #include "simplex_vector.h"
 
-bool resize_simplex_vector(Simplex_Vector *const);
+static bool resize_simplex_vector(Simplex_Vector *const);
 
 
 bool initialize_simplex_vector(Simplex_Vector *const simplexVectorToInitialize)
