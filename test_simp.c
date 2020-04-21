@@ -13,26 +13,16 @@ double test_func(int *, int, void *);
 int main(void)
 {
   
-  Simplex_Vector *simplicialComplex = generate_simplicial_complex(&test_func, NULL, 5, 3, 0);
+  int dim = 8;
+  int maxVert = 20;
+
+  Simplex_Vector *simplicialComplex = generate_simplicial_complex(&test_func, NULL, maxVert, dim, 0);
   if(simplicialComplex == NULL){
     return 1;
   }
-  Simplex *workingSimplex;
   
-  for(int i = 0; i <= 3; i++){
-    workingSimplex = simplicialComplex[i].initialSimplex;
-    for(int j = 0; j < simplicialComplex->currentCapacity; j++){
-      for(int k = 0; k <= simplicialComplex[i].simplexDimension; k++){
-        printf("%d", (&workingSimplex->initialVertex)[k]);
-      }
-      printf("\n");
-      workingSimplex = (Simplex *) ((int *) (workingSimplex + 1) + simplicialComplex[i].simplexDimension);
-    }
-    printf("\n********\n\n");
-  }
-  
-  for(int i = 0; i <= 3; i++){
-    free_simplex_vector(simplicialComplex[i].initialSimplex);
+  for(int i = 0; i <= dim; i++){
+    free_simplex_vector(&simplicialComplex[i]);
   }
   free(simplicialComplex);
   
@@ -40,10 +30,12 @@ int main(void)
 }
 
 
-double test_func(int *simplex, int simplexDimension, void *filtrationFunctionParameters){
+double test_func(int *initialVertex, int simplexDimension, void *filtrationFunctionParameters){
+  
+  return 0;
   
   for(int i = 0; i <= simplexDimension; i++){
-    switch(simplex[i]){
+    switch(initialVertex[i]){
       
       case 0:
         break;
@@ -52,7 +44,7 @@ double test_func(int *simplex, int simplexDimension, void *filtrationFunctionPar
       case 2:
         break;
       case 3:
-        break;
+	break;
       default:
         return DBL_MAX;
     }

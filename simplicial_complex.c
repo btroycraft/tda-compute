@@ -42,8 +42,10 @@ Simplex_Vector *generate_simplicial_complex(double (*const filtrationFunction)(i
       }
   }
   
-  if(generate_simplicial_complex_recursively(filtrationFunction, filtrationFunctionParameters, maximumSimplexDimension, maximumFiltrationParameter, simplicialComplex+1, simplexCandidate, vertexCandidates, vertexCandidates+1) == VECTOR_ALLOCATION_FAILURE){
-    simplexGenerationFlag = VECTOR_ALLOCATION_FAILURE;
+  if(simplexGenerationFlag == SIMPLEX_GENERATION_SUCCESS){
+    if(generate_simplicial_complex_recursively(filtrationFunction, filtrationFunctionParameters, maximumSimplexDimension, maximumFiltrationParameter, simplicialComplex+1, simplexCandidate, vertexCandidates, vertexCandidates+1) == VECTOR_ALLOCATION_FAILURE){
+      simplexGenerationFlag = VECTOR_ALLOCATION_FAILURE;
+    }
   }
   
   for(int i = 0; i <= maximumSimplexDimension; i++){
@@ -54,21 +56,22 @@ Simplex_Vector *generate_simplicial_complex(double (*const filtrationFunction)(i
   free(simplexCandidate);
   free(vertexCandidates);
   
-  if(simplexGenerationFlag == VECTOR_ALLOCATION_FAILURE){
-    return NULL;
-  } else {
-    return simplicialComplex;
+  switch(simplexGenerationFlag){
+    case VECTOR_ALLOCATION_FAILURE:
+      return NULL;
+    case SIMPLEX_GENERATION_SUCCESS:
+      return simplicialComplex;
   }
 }
 
 static bool generate_simplicial_complex_recursively(double (*const filtrationFunction)(int *, int, void *), void *const filtrationFunctionParameters, const int maximumSimplexDimension, const double maximumFiltrationParameter, Simplex_Vector *const destinationSimplexVector, Simplex *const simplexCandidate, const Integer_Vector *const currentVertexCandidates, Integer_Vector *const newVertexCandidates)
 {
   
-  int *workingVertex = (int *) ((Simplex *) simplexCandidate + 1) + (destinationSimplexVector->simplexDimension - 1);
-  
-  newVertexCandidates->currentSize = 0;
-  
+  int *workingVertex = &simplexCandidate->initialVertex + destinationSimplexVector->simplexDimension - 1;
+
   for(int i = 0; i < currentVertexCandidates->currentSize-1; i++){
+    
+    newVertexCandidates->currentSize = 0;
     
     *workingVertex = currentVertexCandidates->initialInteger[i];
     workingVertex++;
@@ -76,13 +79,13 @@ static bool generate_simplicial_complex_recursively(double (*const filtrationFun
     for(int j = i+1; j < currentVertexCandidates->currentSize; j++){
       
       *workingVertex = currentVertexCandidates->initialInteger[j];
-      
+
       simplexCandidate->filtrationParameter = (*filtrationFunction)(&simplexCandidate->initialVertex, destinationSimplexVector->simplexDimension, filtrationFunctionParameters);
       if(simplexCandidate->filtrationParameter <= maximumFiltrationParameter){
         if(append_simplex_to_vector(simplexCandidate, destinationSimplexVector) == VECTOR_ALLOCATION_FAILURE){
           return VECTOR_ALLOCATION_FAILURE;
         }
-        if(append_integer_to_vector(j, newVertexCandidates) == VECTOR_ALLOCATION_FAILURE){
+        if(append_integer_to_vector(*workingVertex, newVertexCandidates) == VECTOR_ALLOCATION_FAILURE){
           return VECTOR_ALLOCATION_FAILURE;
         }
       }

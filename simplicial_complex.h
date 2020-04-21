@@ -9,7 +9,7 @@
 #include "integer_vector.h"
 
 #ifndef SIMPLEX_GENERATION_SUCCESS
-#define SIMPLEX_GENERATION_SUCCESS true
+#define SIMPLEX_GENERATION_SUCCESS false
 #endif
 
 
