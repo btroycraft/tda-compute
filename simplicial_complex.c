@@ -28,7 +28,7 @@ Simplex_Vector *generate_simplicial_complex(double (*const filtrationFunction)(i
   for(int i = 0; i <= largestVertex; i++){
     
     simplexCandidate->initialVertex = i;
-    simplexCandidate->filtrationParameter = (*filtrationFunction)(&simplexCandidate->initialVertex, simplexCandidate->simplexDimension, filtrationFunctionParameters);
+    simplexCandidate->filtrationParameter = (*filtrationFunction)(&simplexCandidate->initialVertex, simplicialComplex->simplexDimension, filtrationFunctionParameters);
     
     if(simplexCandidate->filtrationParameter <= maximumParameterLevel){
         if(append_simplex_to_vector(simplexCandidate, simplicialComplex) == VECTOR_ALLOCATION_FAILURE){
