@@ -4,13 +4,13 @@
 
 #include "simplex_vector.h"
 
-bool resize_simplex_vector(Simplex_Vector *);
+bool resize_simplex_vector(Simplex_Vector *const);
 
 
-bool initialize_simplex_vector(const Simplex_Vector *simplexVectorToInitialize)
+bool initialize_simplex_vector(Simplex_Vector *const simplexVectorToInitialize)
 {
   
-  const Simplex *initialSimplex = (Simplex *) malloc(SIMPLEX_VECTOR_INITIAL_CAPACITY * (sizeof(Simplex) + simplexVectorToInitialize->simplexDimension * sizeof(int)));
+  const Simplex *const initialSimplex = (Simplex *) malloc(SIMPLEX_VECTOR_INITIAL_CAPACITY * (sizeof(Simplex) + simplexVectorToInitialize->simplexDimension * sizeof(int)));
   
   simplexVectorToInitialize->initialSimplex = initialSimplex;
   simplexVectorToInitialize->currentSize = 0;
@@ -30,7 +30,7 @@ bool initialize_simplex_vector(const Simplex_Vector *simplexVectorToInitialize)
   return VECTOR_INITIALIZATION_SUCCESS;
 }
 
-bool append_simplex_to_vector(const Simplex *simplexToAppend, const Simplex_Vector *destinationSimplexVector)
+bool append_simplex_to_vector(const Simplex *const simplexToAppend, Simplex_Vector *const destinationSimplexVector)
 {
   
   if(destinationSimplexVector->currentSize == destinationSimplexVector->currentCapacity){
@@ -39,16 +39,16 @@ bool append_simplex_to_vector(const Simplex *simplexToAppend, const Simplex_Vect
     }
   }
   
-  const Simplex *simplexDestination = (Simplex *) ((int *) destinationSimplexVector->initialSimplex + destinationSimplexVector->currentSize*destinationSimplexVector->simplexDimension) + destinationSimplexVector->currentSize;
+  const Simplex *const workingSimplex = (Simplex *) ((int *) destinationSimplexVector->initialSimplex + destinationSimplexVector->currentSize*destinationSimplexVector->simplexDimension) + destinationSimplexVector->currentSize;
   
-  memcpy(simplexDestination, simplexToAppend, sizeof(Simplex) + destinationSimplexVector->simplexDimension * sizeof(int));
+  memcpy(workingSimplex, simplexToAppend, sizeof(Simplex) + destinationSimplexVector->simplexDimension * sizeof(int));
   
-  simplexVector->currentSize++;
+  destinationSimplexVector->currentSize++;
   
   return VECTOR_APPEND_SUCCESS;
 }
 
-void free_simplex_vector(const Simplex_Vector *simplexVectorToFree)
+void free_simplex_vector(Simplex_Vector *const simplexVectorToFree)
 {
   
   free(simplexVectorToFree->initialSimplex);
@@ -56,12 +56,12 @@ void free_simplex_vector(const Simplex_Vector *simplexVectorToFree)
 }
 
 
-static bool resize_simplex_vector(const Simplex_Vector *simplexVectorToResize)
+static bool resize_simplex_vector(Simplex_Vector *const simplexVectorToResize)
 {
   
   const int newCapacity = (int) (SIMPLEX_VECTOR_RESIZE_FACTOR * simplexVectorToResize->currentCapacity);
   
-  const Simplex *initialSimplex = realloc(simplexVectorToResize->initialSimplex, newCapacity * (sizeof(Simplex) + simplexVectorToResize->simplexDimension * sizeof(int)));
+  const Simplex *const initialSimplex = realloc(simplexVectorToResize->initialSimplex, newCapacity * (sizeof(Simplex) + simplexVectorToResize->simplexDimension * sizeof(int)));
   
   #ifdef SIMPLEX_VECTOR_DEBUG_ON
     printf("Simplex vector resized from %d to %d.\n", simplexVectorToResize->currentCapacity, newCapacity);

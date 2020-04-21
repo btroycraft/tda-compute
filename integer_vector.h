@@ -36,8 +36,8 @@ typedef struct Integer_Vector{
 }
 Integer_Vector;
 
-bool initiate_integer_vector(Integer_Vector *);
-bool append_integer_to_vector(int *, Integer_Vector *);
-void free_integer_vector(Integer_Vector *);
+bool initiate_integer_vector(Integer_Vector *const);
+bool append_integer_to_vector(const int, Integer_Vector *const);
+void free_integer_vector(Integer_Vector *const);
 
 #endif

@@ -4,13 +4,13 @@
 
 #include "integer_vector.h"
 
-bool resize_integer_vector(Integer_Vector *);
+bool resize_integer_vector(Integer_Vector *const);
 
 
-bool initialize_integer_vector(const Integer_Vector *integerVectorToInitialize)
+bool initialize_integer_vector(Integer_Vector *const integerVectorToInitialize)
 {
   
-  const int *initialInteger = (int *) malloc(INTEGER_VECTOR_INITIAL_CAPACITY * sizeof(int));
+  const int *const initialInteger = (int *) malloc(INTEGER_VECTOR_INITIAL_CAPACITY * sizeof(int));
   
   integerVectorToInitialize->initialInteger = initialInteger;
   integerVectorToInitialize->currentSize = 0;
@@ -30,7 +30,7 @@ bool initialize_integer_vector(const Integer_Vector *integerVectorToInitialize)
   return VECTOR_INITIALIZATION_SUCCESS;
 }
 
-bool append_integer_to_vector(const int integerToAppend, const Integer_Vector *destinationIntegerVector)
+bool append_integer_to_vector(const int integerToAppend, Integer_Vector *const destinationIntegerVector)
 {
   
   if(destinationIntegerVector->currentSize == destinationIntegerVector->currentCapacity){
@@ -45,7 +45,7 @@ bool append_integer_to_vector(const int integerToAppend, const Integer_Vector *d
   return VECTOR_APPEND_SUCCESS;
 }
 
-void free_integer_vector(const Integer_Vector *integerVectorToFree)
+void free_integer_vector(Integer_Vector *const integerVectorToFree)
 {
   
   free(integerVectorToFree->initialInteger);
@@ -53,12 +53,12 @@ void free_integer_vector(const Integer_Vector *integerVectorToFree)
 }
 
 
-static bool resize_integer_vector(const Integer_Vector *integerVectorToResize)
+static bool resize_integer_vector(Integer_Vector *const integerVectorToResize)
 {
   
-  const int newCapacity = (int) (INTEGER_VECTOR_RESIZE_FACTOR * integerVectorToResize->currentCapacity);
+  const int newCapacity = (const int) (INTEGER_VECTOR_RESIZE_FACTOR * integerVectorToResize->currentCapacity);
   
-  const int *initialInteger = (int *) realloc(integerVectorToResize->initialInteger, newCapacity * sizeof(int));
+  const int *const initialInteger = (const int *const) realloc(integerVectorToResize->initialInteger, newCapacity * sizeof(int));
   
   #ifdef INTEGER_VECTOR_DEBUG_ON
     printf("Integer vector resized from %d to %d.\n", integerVectorToResize->currentCapacity, newCapacity);

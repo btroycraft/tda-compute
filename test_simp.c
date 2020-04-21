@@ -7,7 +7,7 @@
 #include "integer_vector.h"
 #include "simplicial_complex.h"
 
-double test_func(const int *, const int, const void *);
+double test_func(int *, int, void *);
 
 
 int main(void)
@@ -37,7 +37,7 @@ int main(void)
 }
 
 
-double test_func(const int *simplex, const int simplexDimension, const void *filtrationFunctionParameters){
+double test_func(int *simplex, int simplexDimension, void *filtrationFunctionParameters){
   
   for(int i = 0; i <= simplexDimension; i++){
     switch(simplex[i]){
