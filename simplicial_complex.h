@@ -13,5 +13,5 @@
 #endif
 
 
-Simplex_Vector *generate_simplicial_complex(const double (*filtrationFunction)(int *, int, void *), const void *filtrationFunctionParameters, const int largestVertex, const int maximumSimplexDimension, const double maximumFiltrationParameter);
+Simplex_Vector *generate_simplicial_complex(const (double *)(int *, int, void *), const void *, const int, const int, const double);
 #endif
