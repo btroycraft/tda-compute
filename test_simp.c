@@ -32,7 +32,7 @@ int main(void)
   }
   
   for(int i = 0; i <= 3; i++){
-    free_simplex_vector(simplicialComplex[i]->initialSimplex);
+    free_simplex_vector(simplicialComplex[i].initialSimplex);
   }
   free(simplicialComplex);
   
