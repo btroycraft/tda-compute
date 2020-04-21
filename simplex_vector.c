@@ -57,7 +57,7 @@ void free_simplex_vector(Simplex_Vector *const simplexVectorToFree)
 }
 
 
-static bool resize_simplex_vector(Simplex_Vector *const simplexVectorToResize)
+bool resize_simplex_vector(Simplex_Vector *const simplexVectorToResize)
 {
   
   const int newCapacity = (int) (SIMPLEX_VECTOR_RESIZE_FACTOR * simplexVectorToResize->currentCapacity);
