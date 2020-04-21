@@ -70,19 +70,19 @@ static bool generate_simplicial_complex_recursively(double (*const filtrationFun
   
   for(int i = 0; i < currentVertexCandidates->currentSize-1; i++){
     
-    *workingVertex = currentVertexCandidates->initialVertex[i];
+    *workingVertex = currentVertexCandidates->initialInteger[i];
     workingVertex++;
     
     for(int j = i+1; j < currentVertexCandidates->currentSize; j++){
       
-      *workingVertex = currentVertexCandidates->initialVertex[j];
+      *workingVertex = currentVertexCandidates->initialInteger[j];
       
       simplexCandidate->filtrationParameter = (*filtrationFunction)(&simplexCandidate->initialVertex, destinationSimplexVector->simplexDimension, filtrationFunctionParameters);
-      if(simplexCandidate->filtrationParameter <= maximumParameterLevel){
+      if(simplexCandidate->filtrationParameter <= maximumFiltrationParameter){
         if(append_simplex_to_vector(simplexCandidate, destinationSimplexVector) == VECTOR_ALLOCATION_FAILURE){
           return VECTOR_ALLOCATION_FAILURE;
         }
-        if(append_integer_to_vector(j, newVertexCandidates) == VECTOR_ALLOCATION_FAILURE)){
+        if(append_integer_to_vector(j, newVertexCandidates) == VECTOR_ALLOCATION_FAILURE){
           return VECTOR_ALLOCATION_FAILURE;
         }
       }
