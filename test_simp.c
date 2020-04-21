@@ -14,7 +14,7 @@ int main(void)
 {
   
   Simplex_Vector *simplicialComplex = generate_simplicial_complex(&test_func, NULL, 5, 3, 0);
-  print("%d", (int) simplicialComplex);
+  printf("%d", (int) simplicialComplex);
   if(simplicialComplex == NULL){
     return 1;
   }
