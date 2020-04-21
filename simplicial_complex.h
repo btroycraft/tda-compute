@@ -13,5 +13,5 @@
 #endif
 
 
-Simplex_Vector *generate_simplicial_complex(const (double *)(int *, int, void *), const void *, const int, const int, const double);
+Simplex_Vector *generate_simplicial_complex(const double (*)(int *, int, void *), const void *, const int, const int, const double);
 #endif

@@ -6,7 +6,7 @@
 #include "integer_vector.h"
 #include "simplicial_complex.h"
 
-bool generate_simplicial_complex_recursively((double *)(int *, int, void *), void *, int, double, Simplex_Vector *, Simplex *, Integer_Vector *, Integer_Vector *)
+bool generate_simplicial_complex_recursively(double (*)(int *, int, void *), void *, int, double, Simplex_Vector *, Simplex *, Integer_Vector *, Integer_Vector *)
 
 
 Simplex_Vector *generate_simplicial_complex(const (double *filtrationFunction)(int *, int, void *), const void *filtrationFunctionParameters, const int largestVertex, const int maximumSimplexDimension, const double maximumFiltrationParameter)
@@ -61,7 +61,7 @@ Simplex_Vector *generate_simplicial_complex(const (double *filtrationFunction)(i
   }
 }
 
-static bool generate_simplicial_complex_recursively(const (double *filtrationFunction)(int *, int, void *), const void *filtrationFunctionParameters, const int maximumSimplexDimension, const double maximumFiltrationParameter, const Simplex_Vector *destinationSimplexVector, const Simplex *simplexCandidate, const Integer_Vector *currentVertexCandidates, const Integer_Vector *newVertexCandidates)
+static bool generate_simplicial_complex_recursively(const double (*filtrationFunction)(int *, int, void *), const void *filtrationFunctionParameters, const int maximumSimplexDimension, const double maximumFiltrationParameter, const Simplex_Vector *destinationSimplexVector, const Simplex *simplexCandidate, const Integer_Vector *currentVertexCandidates, const Integer_Vector *newVertexCandidates)
 {
   
   int *workingVertex = (int *) ((Simplex *) simplexCandidate + 1) + (destinationSimplexVector->simplexDimension - 1);
