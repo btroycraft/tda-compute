@@ -6,10 +6,10 @@
 #include "integer_vector.h"
 #include "simplicial_complex.h"
 
-bool generate_simplicial_complex_recursively(const double (*const)(int *, int, void *), void *const, const int, const double, Simplex_Vector *const, Simplex *const, Integer_Vector *const, Integer_Vector *const)
+bool generate_simplicial_complex_recursively(double (*const)(int *, int, void *), void *const, const int, const double, Simplex_Vector *const, Simplex *const, Integer_Vector *const, Integer_Vector *const)
 
 
-Simplex_Vector *generate_simplicial_complex(const (double *const filtrationFunction)(int *, int, void *), void *const filtrationFunctionParameters, const int largestVertex, const int maximumSimplexDimension, const double maximumFiltrationParameter)
+Simplex_Vector *generate_simplicial_complex(double (*const filtrationFunction)(int *, int, void *), void *const filtrationFunctionParameters, const int largestVertex, const int maximumSimplexDimension, const double maximumFiltrationParameter)
 {
   
   Simplex_Vector *const simplicialComplex = (Simplex_Vector *) malloc((maximumSimplexDimension+1) * sizeof(Simplex_Vector));
@@ -61,7 +61,7 @@ Simplex_Vector *generate_simplicial_complex(const (double *const filtrationFunct
   }
 }
 
-static bool generate_simplicial_complex_recursively(const double (*const filtrationFunction)(int *, int, void *), void *const filtrationFunctionParameters, const int maximumSimplexDimension, const double maximumFiltrationParameter, Simplex_Vector *const destinationSimplexVector, *const simplexCandidate, const Integer_Vector *const currentVertexCandidates, Integer_Vector *const newVertexCandidates)
+static bool generate_simplicial_complex_recursively(double (*const filtrationFunction)(int *, int, void *), void *const filtrationFunctionParameters, const int maximumSimplexDimension, const double maximumFiltrationParameter, Simplex_Vector *const destinationSimplexVector, *const simplexCandidate, const Integer_Vector *const currentVertexCandidates, Integer_Vector *const newVertexCandidates)
 {
   
   int *workingVertex = (int *) ((Simplex *) simplexCandidate + 1) + (destinationSimplexVector->simplexDimension - 1);
