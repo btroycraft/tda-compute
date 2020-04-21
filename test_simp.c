@@ -56,4 +56,4 @@ double test_func(const int *simplex, const int simplexDimension, const void *fil
   }
   
   return 0;
-{
+}
