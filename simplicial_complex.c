@@ -9,7 +9,7 @@
 static bool generate_simplicial_complex_recursively(double (*const)(int *, int, void *), void *const, const int, const double, Simplex_Vector *const, Simplex *const, const Integer_Vector *const, Integer_Vector *const);
 
 
-Simplex_Vector *generate_simplicial_complex(double (*const filtrationFunction)(int *, int, void *), void *const filtrationFunctionParameters, const int largestVertex, const int maximumSimplexDimension, const double maximumFiltrationParameter)
+Simplicial_Complex *generate_simplicial_complex(double (*const filtrationFunction)(int *, int, void *), void *const filtrationFunctionParameters, const int largestVertex, const int maximumSimplexDimension, const double maximumFiltrationParameter)
 {
   
   Simplex_Vector *const simplicialComplex = (Simplex_Vector *) malloc((maximumSimplexDimension+1) * sizeof(Simplex_Vector));
@@ -69,9 +69,11 @@ bool rank_simplicial_complex(Simplex_Vector *simplicialComplex){
   bool simplicialComplexRankFlag = SIMPLICIAL_COMPLEX_RANKING_SUCCESS;
   
   int simplicialComplexTotalSize = 0;
-  for(int i = 0; i < simplicialComplex->maximumSimplexDimension;
+  for(int i = 0; i < simplicialComplex->maximumSimplexDimension; ++i){
+    simplicialComplexTotalSize += simplicialComplex->initial
+  }
   
-  int* simplexRanks = (int*) malloc()
+  int* simplexRanks = (int*) malloc();
   
 }
 

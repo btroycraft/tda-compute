@@ -12,6 +12,11 @@
 #define SIMPLEX_GENERATION_SUCCESS false
 #endif
 
+typedef Simplicial_Complex struct{
+  Simplex_Vector *initialSimplexSet;
+  int maximumSimplexDimension;
+};
+Simplicial_Complex;
 
-Simplex_Vector *generate_simplicial_complex(double (*const)(int *, int, void *), void *const, const int, const int, const double);
+Simplicial_Complex *generate_simplicial_complex(double (*const)(int *, int, void *), void *const, const int, const int, const double);
 #endif
