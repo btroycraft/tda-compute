@@ -12,6 +12,12 @@
 #define SIMPLEX_GENERATION_SUCCESS false
 #endif
 
+#define BUILD_FUNCTION_GENERATE_SIMPLICIAL_COMPLEX(FILTRATION_FUNCTION, )\
+\
+Simplicial_Complex *generate_simplicial_complex_using_FILTRATION_FUNCTION(){\
+
+
+
 typedef Simplicial_Complex struct{
   Simplex_Vector *initialSimplexSet;
   int maximumSimplexDimension;

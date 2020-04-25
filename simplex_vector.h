@@ -34,6 +34,7 @@
 
 
 typedef struct Simplex{
+  int rankLabel;
   double filtrationParameter;
   int initialVertex;
 }

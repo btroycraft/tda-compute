@@ -64,20 +64,49 @@ Simplicial_Complex *generate_simplicial_complex(double (*const filtrationFunctio
   }
 }
 
-bool rank_simplicial_complex(Simplex_Vector *simplicialComplex){
+bool label_simplicial_complex_by_rank(Simplex_Vector *simplicialComplex){
 
-  bool simplicialComplexRankFlag = SIMPLICIAL_COMPLEX_RANKING_SUCCESS;
+  bool simplicialComplexRankFlag = SIMPLICIAL_COMPLEX_LABELLING_SUCCESS;
   
-  int simplicialComplexTotalSize = 0;
   for(int i = 0; i < simplicialComplex->maximumSimplexDimension; ++i){
-    simplicialComplexTotalSize += simplicialComplex->initial
+    
+    
+    
   }
   
   int* simplexRanks = (int*) malloc();
   
 }
 
+bool rank_simplex_set_recursively(simplexSetToRank, ){
+  
+  const int length = upper - lower;
+  Simplex *
+  
+  if(upper - lower < 17){
+    for(int i = 0; i < length; ++i){
+      for(int j = i; j > 0 && )
+    }
+  }
+  
+}
 
+generate
+
+generate_uniformly_distributed_random_permutation(int permutationLength){
+  
+  int *const permutation = (int *) malloc(permutationLength*sizeof(int));
+  
+  int divisor, remainder;
+  
+  int random
+  for(int i = permutationLength; i > 1; ){
+    int 
+  }
+  
+ 
+return  
+}
 
 static bool generate_simplicial_complex_recursively(double (*const filtrationFunction)(int *, int, void *), void *const filtrationFunctionParameters, const int maximumSimplexDimension, const double maximumFiltrationParameter, Simplex_Vector *const destinationSimplexVector, Simplex *const simplexCandidate, const Integer_Vector *const currentVertexCandidates, Integer_Vector *const newVertexCandidates)
 {
