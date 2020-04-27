@@ -4,25 +4,28 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stdarg.h>
 
-#include "simplex_vector.h"
-#include "integer_vector.h"
+#include "simp.h"
 
-#ifndef SIMPLEX_GENERATION_SUCCESS
-#define SIMPLEX_GENERATION_SUCCESS false
+#ifndef MAIN_MEMORY_SIZE
+#define MAIN_MEMORY_SIZE 4
+#endif
+#ifndef L3_CACHE_SIZE
+#define L3_CACHE_SIZE
+#endif
+#ifndef L2_CACHE_SIZE
+#define L2_CACHE_SIZE 4
+#endif
+#ifndef L1_CACHE_SIZE
+#define L1_CACHE_SIZE 4
 #endif
 
-#define BUILD_FUNCTION_GENERATE_SIMPLICIAL_COMPLEX(FILTRATION_FUNCTION, )\
-\
-Simplicial_Complex *generate_simplicial_complex_using_FILTRATION_FUNCTION(){\
-
-
-
-typedef Simplicial_Complex struct{
-  Simplex_Vector *initialSimplexSet;
-  int maximumSimplexDimension;
+typedef Simp_Comp struct{
+  unsigned int dim;
+  Simp_Vec init;
 };
-Simplicial_Complex;
+Simp_Comp;
 
 Simplicial_Complex *generate_simplicial_complex(double (*const)(int *, int, void *), void *const, const int, const int, const double);
 #endif

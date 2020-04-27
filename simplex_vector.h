@@ -6,6 +6,8 @@
 #include <stdbool.h>
 #include <string.h>
 
+#include "vertex_vector.h"
+
 #define SIMPLEX_VECTOR_DEBUG_ON
 
 #ifndef SIMPLEX_VECTOR_INITIAL_CAPACITY
@@ -20,31 +22,19 @@
 #define VECTOR_ALLOCATION_FAILURE true
 #endif
 
-#ifndef VECTOR_RESIZE_SUCCESS
-#define VECTOR_RESIZE_SUCCESS false
-#endif
-
-#ifndef VECTOR_INITIALIZATION_SUCCESS
-#define VECTOR_INITIALIZATION_SUCCESS false
-#endif
-
-#ifndef VECTOR_APPEND_SUCCESS
-#define VECTOR_APPEND_SUCCESS false
-#endif
-
 
 typedef struct Simplex{
-  int rankLabel;
+  unsigned int rankLabel;
   double filtrationParameter;
-  int initialVertex;
+  Vertex initialVertex;
 }
 Simplex;
 
 typedef struct Simplex_Vector{
+  unsigned int simplexDimension;
+  unsigned int currentSize;
+  unsigned int currentCapacity;
   Simplex *initialSimplex;
-  int simplexDimension;
-  int currentSize;
-  int currentCapacity;
 }
 Simplex_Vector;
 

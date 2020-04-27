@@ -11,7 +11,7 @@ static bool resize_simplex_vector(Simplex_Vector *const);
 bool initialize_simplex_vector(Simplex_Vector *const simplexVectorToInitialize)
 {
   
-  const Simplex *const initialSimplex = (Simplex *) malloc(SIMPLEX_VECTOR_INITIAL_CAPACITY * (sizeof(Simplex) + simplexVectorToInitialize->simplexDimension * sizeof(int)));
+  const Simplex *const initialSimplex = (Simplex *) malloc(SIMPLEX_VECTOR_INITIAL_CAPACITY * (sizeof(Simplex) + simplexVectorToInitialize->simplexDimension * sizeof(Vertex)));
   
   simplexVectorToInitialize->initialSimplex = initialSimplex;
   simplexVectorToInitialize->currentSize = 0;
@@ -28,25 +28,25 @@ bool initialize_simplex_vector(Simplex_Vector *const simplexVectorToInitialize)
   
   simplexVectorToInitialize->currentCapacity = SIMPLEX_VECTOR_INITIAL_CAPACITY;
   
-  return VECTOR_INITIALIZATION_SUCCESS;
+  return !VECTOR_ALLOCATION_FAILURE;
 }
 
 bool append_simplex_to_vector(const Simplex *const simplexToAppend, Simplex_Vector *const destinationSimplexVector)
 {
   
-  if(destinationSimplexVector->currentSize == destinationSimplexVector->currentCapacity){
+  if(destinationSimplexVector->currentSize >= destinationSimplexVector->currentCapacity){
     if(resize_simplex_vector(destinationSimplexVector) == VECTOR_ALLOCATION_FAILURE){
       return VECTOR_ALLOCATION_FAILURE;
     }
   }
   
-  Simplex *const workingSimplex += (Simplex *) ((int *) destinationSimplexVector->initialSimplex + destinationSimplexVector->currentSize*destinationSimplexVector->simplexDimension) + destinationSimplexVector->currentSize;
+  Simplex *const workingSimplex = (Simplex *) ((Vertex *) workingSimplex + destinationSimplexVector->currentSize*destinationSimplexVector->simplexDimension) + destinationSimplexVector->currentSize;
   
   memcpy(workingSimplex, simplexToAppend, sizeof(Simplex) + destinationSimplexVector->simplexDimension * sizeof(int));
   
   ++destinationSimplexVector->currentSize;
   
-  return VECTOR_APPEND_SUCCESS;
+  return !VECTOR_ALLOCATION_FAILURE;
 }
 
 void free_simplex_vector(Simplex_Vector *const simplexVectorToFree)
@@ -78,5 +78,5 @@ static bool resize_simplex_vector(Simplex_Vector *const simplexVectorToResize)
   simplexVectorToResize->initialSimplex = initialSimplex;
   simplexVectorToResize->currentCapacity = newCapacity;
   
-  return VECTOR_RESIZE_SUCCESS;
+  return !VECTOR_ALLOCATION_FAILURE;
 }

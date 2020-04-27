@@ -1,48 +1,73 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stdarg.h>
+#include <pthread.h>
 
 #include "simplex_vector.h"
 #include "integer_vector.h"
 #include "simplicial_complex.h"
 
-static bool generate_simplicial_complex_recursively(double (*const)(int *, int, void *), void *const, const int, const double, Simplex_Vector *const, Simplex *const, const Integer_Vector *const, Integer_Vector *const);
+#ifndef SIMP_INCL
+#define SIMP_INCL true
+#endif
+
+static bool generate_simplicial_complex_recursively(bool (*const)(int *, int, void *), void *const, const int, const double, Simplex_Vector *const, Simplex *const, const Integer_Vector *const, Integer_Vector *const);
 
 
-Simplicial_Complex *generate_simplicial_complex(double (*const filtrationFunction)(int *, int, void *), void *const filtrationFunctionParameters, const int largestVertex, const int maximumSimplexDimension, const double maximumFiltrationParameter)
-{
+Simp_Comp *gen_simp_comp(bool (const *const simp_func)(Simp *const, const unsigned int, va_list), const Vert maxVert, const unsigned int maxDim, const unsigned int numThreads, ...){
   
-  Simplex_Vector *const simplicialComplex = (Simplex_Vector *) malloc((maximumSimplexDimension+1) * sizeof(Simplex_Vector));
-  Integer_Vector *const vertexCandidates = (Integer_Vector *) malloc((maximumSimplexDimension+1) * sizeof(Integer_Vector));
-  Simplex *const simplexCandidate = (Simplex *) malloc(sizeof(Simplex) + maximumSimplexDimension * sizeof(int));
+  va_list args;
+  va_start(args, maxDim);
   
-  bool simplicialComplexGenerationFlag = SIMPLICIAL_COMPLEX_GENERATION_SUCCESS;
+  pthread_t threads[numThreads];
+  Simp_Vec simpThread[numThreads];
   
-  for(int i = 0; i <= maximumSimplexDimension; ++i){
-    
-    simplicialComplex[i].simplexDimension = i;
-    initialize_simplex_vector(&simplicialComplex[i]);
-    initialize_integer_vector(&vertexCandidates[i]);
+  bool flag = !ALLOC_FAIL;
+  
+  Simp_Comp *const comp = (Simp_Comp *) malloc(sizeof(Simp_Comp) + maxDim * sizeof(Simp_Vec));
+  if(comp == NULL){
+    return ALLOC_FAIL;
   }
   
-  for(int i = 0; i <= largestVertex; ++i){
-    
-    simplexCandidate->initialVertex = i;
-    simplexCandidate->filtrationParameter = (*filtrationFunction)(&simplexCandidate->initialVertex, simplicialComplex->simplexDimension, filtrationFunctionParameters);
-    
-    if(simplexCandidate->filtrationParameter <= maximumFiltrationParameter){
-        if(append_simplex_to_vector(simplexCandidate, simplicialComplex) == VECTOR_ALLOCATION_FAILURE){
-          simplicialComplexGenerationFlag = VECTOR_ALLOCATION_FAILURE;
-          break;
-        }
-        if(append_integer_to_vector(i, vertexCandidates) == VECTOR_ALLOCATION_FAILURE){
-          simplicialComplexGenerationFlag = VECTOR_ALLOCATION_FAILURE;
+  if(flag != ALLOC_FAIL){
+    Simp_Vec *work = simpThread;
+    for(unsigned int i = 0; i < threads, ++i){
+      if(init_simp_vec(work) == ALLOC_FAIL){
+        flag = ALLOC_FAIL;
+        break;
+      }
+      ++work;
+    }
+  }
+  
+  if(flag != ALLOC_FAIL){
+    Simp_Vec *work = &comp->init;
+    for(unsigned int i = 0; i <= maxDim; ++i){
+      
+      work->dim = i;
+      if(init_simp_vec(work) == ALLOC_FAIL){
+        flag = ALLOC_FAIL;
+        break;
+      }
+      ++work;
+    }
+  }
+  
+  {
+  Simp simpTemp;
+    for(Simp simpTemp = (Simp) {.init = 0}; simpTemp.init <= maxVert; ++simpTemp.init){
+      
+      if((*simp_func)(&simpTemp, 0, args) == SIMP_INCL){
+        if(app_simp_to_vec(&simpTemp, simpComp->init, 1) == ALLOC_FAIL){
+          flag = ALLOC_FAIL;
           break;
         }
       }
+    }
   }
   
-  if(simplicialComplexGenerationFlag == SIMPLICIAL_COMPLEX_GENERATION_SUCCESS){
+  if(simplicialComplexGenerationFlag != VECTOR_ALLOCATION_FAILURE){
     if(generate_simplicial_complex_recursively(filtrationFunction, filtrationFunctionParameters, maximumSimplexDimension, maximumFiltrationParameter, simplicialComplex+1, simplexCandidate, vertexCandidates, vertexCandidates+1) == VECTOR_ALLOCATION_FAILURE){
       simplicialComplexGenerationFlag = VECTOR_ALLOCATION_FAILURE;
     }
@@ -62,6 +87,10 @@ Simplicial_Complex *generate_simplicial_complex(double (*const filtrationFunctio
     case SIMPLEX_GENERATION_SUCCESS:
       return simplicialComplex;
   }
+}
+
+generate_simplicial_complex_thread(bool (const *const simplex_function)(Simplex *const, const unsigned int, va_list)){
+  
 }
 
 bool label_simplicial_complex_by_rank(Simplex_Vector *simplicialComplex){

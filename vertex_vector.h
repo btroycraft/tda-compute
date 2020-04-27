@@ -1,5 +1,5 @@
-#ifndef INTEGER_VECTOR_H_
-#define INTEGER_VECTOR_H_
+#ifndef VERTEX_VECTOR_H_
+#define VERTEX_VECTOR_H_
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -32,9 +32,11 @@
 #define VECTOR_APPEND_SUCCESS false
 #endif
 
+typedef unsigned int Vertex;
+
 typedef struct Vertex_Vector{
-  int currentSize;
-  int currentCapacity;
+  unsigned int currentSize;
+  unsigned int currentCapacity;
   Vertex *initialVertex;
 }
 Vertex_Vector;
