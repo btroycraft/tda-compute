@@ -20,7 +20,7 @@
 
 #define DECLARE_INIT_VEC_FUNC( NAME, ITEM_TYPE, SIZE_TYPE, INIT_SIZE )\
   bool init_##NAME##_vec(NAME##_Vec *const vec){\
-    const ITEM_TYPE *const init = (ITEM_TYPE *) malloc(INIT_SIZE);\
+    const ITEM_TYPE *const init = malloc(INIT_SIZE);\
     vec->init = (ITEM_TYPE *) init;\
     assert(init != NULL);\
     if(init == NULL){\
@@ -47,7 +47,7 @@
     while(new < req){\
       new = (SIZE_TYPE) (MULT * new);\
     }\
-    const ITEM_TYPE *const init = (ITEM_TYPE *) realloc(vec->init, new * sizeof(ITEM_TYPE));\
+    const ITEM_TYPE *const init = realloc(vec->init, new * sizeof(ITEM_TYPE));\
     assert(init != NULL);\
     if(init == NULL){\
       return VEC_ALLOC_FAIL;\
