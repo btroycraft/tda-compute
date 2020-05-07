@@ -45,7 +45,6 @@
     }\
     SIZE_TYPE new = vec->cap;\
     while(new < req){\
-      printf("%d", new);\
       new = (SIZE_TYPE) (MULT * new);\
     }\
     const ITEM_TYPE *const init = (ITEM_TYPE *) realloc(vec->init, new * sizeof(ITEM_TYPE));\
