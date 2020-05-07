@@ -19,7 +19,7 @@
 #define DECLARE_INIT_VEC_FUNC( NAME, ITEM_TYPE, SIZE_TYPE, INIT_SIZE )\
   bool init_##NAME##_vec(NAME##_Vec *const vec){\
     const ITEM_TYPE *const init = (ITEM_TYPE *) malloc(INIT_SIZE);\
-    vec->init = init;\
+    vec->init = (ITEM_TYPE *) init;\
     assert(init != NULL);\
     if(init == NULL){\
       vec->cap = 0;\
@@ -80,6 +80,6 @@
   DECLARE_INIT_VEC_FUNC( NAME, ITEM_TYPE, SIZE_TYPE, INIT_SIZE )\
   DECLARE_EXP_VEC_FUNC( NAME, ITEM_TYPE, SIZE_TYPE, INIT_SIZE, MULT )\
   DECLARE_APP_TO_VEC_FUNC( NAME, ITEM_TYPE, SIZE_TYPE )\
-  DECLARE_FREE_VEC_FUN( NAME, ITEM_TYPE )\
+  DECLARE_FREE_VEC_FUN( NAME, ITEM_TYPE )
 
 #endif
