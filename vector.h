@@ -22,13 +22,15 @@
   bool init_##NAME##_vec(NAME##_Vec *const vec){\
     const ITEM_TYPE *const init = malloc(INIT_SIZE);\
     vec->init = (ITEM_TYPE *) init;\
+    vec->size = 0;\
     assert(init != NULL);\
     if(init == NULL){\
       vec->cap = 0;\
+      vec->alloc = 0;\
       return VEC_ALLOC_FAIL;\
     } else {\
-      vec->alloc = INIT_SIZE;\
       vec->cap = ((SIZE_TYPE) INIT_SIZE) / ((SIZE_TYPE) sizeof(ITEM_TYPE));\
+      vec->alloc = INIT_SIZE;\
       return !VEC_ALLOC_FAIL;\
     }\
   }
