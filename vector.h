@@ -27,6 +27,7 @@
       vec->cap = 0;\
       return VEC_ALLOC_FAIL;\
     } else {\
+      vec->alloc = INIT_SIZE;\
       vec->cap = ((SIZE_TYPE) INIT_SIZE) / ((SIZE_TYPE) sizeof(ITEM_TYPE));\
       return !VEC_ALLOC_FAIL;\
     }\
