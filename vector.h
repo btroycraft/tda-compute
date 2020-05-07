@@ -3,6 +3,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include <string.h>
 
 #include <assert.h>
 
@@ -50,7 +51,7 @@
     if(init == NULL){\
       return VEC_ALLOC_FAIL;\
     } else {\
-      vec->init = init;\
+      vec->init = (ITEM_TYPE *) init;\
       vec->cap = new;\
       vec->alloc = new * sizeof(ITEM_TYPE);\
       return !VEC_ALLOC_FAIL;\
