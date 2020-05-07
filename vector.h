@@ -8,6 +8,7 @@
 #include <assert.h>
 
 #define VEC_ALLOC_FAIL true
+#define VEC_ALLOC_SUCC false
 
 #define DECLARE_VEC_TYPE(NAME, ITEM_TYPE, SIZE_TYPE )\
   typedef struct NAME##_Vec{\
@@ -44,6 +45,7 @@
     }\
     SIZE_TYPE new = vec->cap;\
     while(new < req){\
+      printf("%d", new);\
       new = (SIZE_TYPE) (MULT * new);\
     }\
     const ITEM_TYPE *const init = (ITEM_TYPE *) realloc(vec->init, new * sizeof(ITEM_TYPE));\
