@@ -1,9 +1,14 @@
 #ifndef VECTOR_H_
 #define VECTOR_H_
 
-#DEFINE VEC_ALLOC_FAIL true
+#include <stdlib.h>
+#include <stdbool.h>
 
-#DEFINE DECLARE_VEC_TYPE( ITEM_TYPE, SIZE_TYPE )\
+#include <assert.h>
+
+#define VEC_ALLOC_FAIL true
+
+#define DECLARE_VEC_TYPE( ITEM_TYPE, SIZE_TYPE )\
   typedef struct ITEM_TYPE##_Vec{\
     SIZE_TYPE size;\
     SIZE_TYPE cap;\
@@ -11,7 +16,7 @@
     ITEM_TYPE *init;\
   } ITEM_TYPE##_Vec;
 
-#DEFINE DECLARE_INIT_VEC_FUNC( NAME, ITEM_TYPE, SIZE_TYPE, INIT_SIZE )\
+#define DECLARE_INIT_VEC_FUNC( NAME, ITEM_TYPE, SIZE_TYPE, INIT_SIZE )\
   bool init_##NAME##_vec(ITEM_TYPE##_Vec *const vec){\
     const ITEM_TYPE *const init = (ITEM_TYPE *) malloc(INIT_SIZE);\
     vec->init = init;\
@@ -25,7 +30,7 @@
     }\
   }
 
-#DEFINE DECLARE_EXP_VEC_FUNC( NAME, ITEM_TYPE, SIZE_TYPE, INIT_SIZE, MULT )\
+#define DECLARE_EXP_VEC_FUNC( NAME, ITEM_TYPE, SIZE_TYPE, INIT_SIZE, MULT )\
   bool exp_##NAME##_vec(ITEM_TYPE##_Vec *const vec, const SIZE_TYPE num){\
     if(vec->cap == 0){\
       if(init_##ITEM_TYPE##_vec(vec) == VEC_ALLOC_FAIL){\
@@ -52,7 +57,7 @@
     }\
   }
 
-#DEFINE DECLARE_APP_TO_VEC_FUNC( NAME, ITEM_TYPE, SIZE_TYPE )\
+#define DECLARE_APP_TO_VEC_FUNC( NAME, ITEM_TYPE, SIZE_TYPE )\
   bool app_##NAME##_to_vec(const ITEM_TYPE *const app, ITEM_TYPE##_Vec *const vec, const SIZE_TYPE num);\
     if(exp_##ITEM_TYPE##_vec(vec, num) == VEC_ALLOC_FAIL){\
       return VEC_ALLOC_FAIL;\
@@ -64,15 +69,17 @@
     }\
   }
  
-#DEFINE DECLARE_FREE_VEC_FUN( NAME, ITEM_TYPE )\
+#define DECLARE_FREE_VEC_FUN( NAME, ITEM_TYPE )\
   void free_##NAME##_vec(ITEM_TYPE##_Vec *const vec){\
     free(vec->init);\
     *vec = (ITEM_TYPE##_Vec) {.size = 0, .cap = 0, .alloc = 0, .init = NULL};\
   }
 
-#DEFINE DECLARE_VEC_TYPE_AND_FUNCS( NAME, ITEM_TYPE, SIZE_TYPE, INIT_SIZE, MULT )\
+#define DECLARE_VEC_TYPE_AND_FUNCS( NAME, ITEM_TYPE, SIZE_TYPE, INIT_SIZE, MULT )\
   DECLARE_VEC_TYPE( ITEM_TYPE, SIZE_TYPE )\
   DECLARE_INIT_VEC_FUNC( NAME, ITEM_TYPE, SIZE_TYPE, INIT_SIZE )\
   DECLARE_EXP_VEC_FUNC( NAME, ITEM_TYPE, SIZE_TYPE, INIT_SIZE, MULT )\
   DECLARE_APP_TO_VEC_FUNC( NAME, ITEM_TYPE, SIZE_TYPE )\
   DECLARE_FREE_VEC_FUN( NAME, ITEM_TYPE )\
+
+#endif
