@@ -58,7 +58,7 @@
   }
 
 #define DECLARE_APP_TO_VEC_FUNC( NAME, ITEM_TYPE, SIZE_TYPE )\
-  bool app_##NAME##_to_vec(const ITEM_TYPE *const app, ITEM_TYPE##_Vec *const vec, const SIZE_TYPE num);\
+  bool app_##NAME##_to_vec(const ITEM_TYPE *const app, ITEM_TYPE##_Vec *const vec, const SIZE_TYPE num){\
     if(exp_##ITEM_TYPE##_vec(vec, num) == VEC_ALLOC_FAIL){\
       return VEC_ALLOC_FAIL;\
     } else {\
