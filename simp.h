@@ -1,331 +1,100 @@
 #ifndef SIMP_H_
 #define SIMP_H_
 
-#include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
 
-#define NDEBUG
-#include <assert.h>
+#include "vector.h"
 
-#ifndef INT_VEC_INIT_SIZE 
-#define INT_VEC_INIT_SIZE 4
-#endif
-#ifndef UINT_VEC_INIT_SIZE 
-#define UINT_VEC_INIT_SIZE 4
-#endif
-#ifndef VERT_VEC_INIT_SIZE 
-#define VERT_VEC_INIT_SIZE 4
-#endif
-#ifndef SIMP_VEC_INIT_SIZE 
-#define SIMP_VEC_INIT_SIZE 4
-#endif
-
-#ifndef INT_VEC_MULT
-#define INT_VEC_MULT 2
-#endif
-#ifndef UINT_VEC_MULT
-#define UINT_VEC_MULT 2
-#endif
-#ifndef VERT_VEC_MULT
-#define VERT_VEC_MULT 2
-#endif
-#ifndef SIMP_VEC_MULT
-#define SIMP_VEC_MULT 2
-#endif
-
-#ifndef ALLOC_FAIL
-#define ALLOC_FAIL true
-#endif
-
-typedef unsigned int Vert;
-typedef struct Simp{
-  double par;
-  unsigned int lab;
-  Vert init;
-} Simp;
-typedef struct Int_Vec{
-  unsigned int size;
-  unsigned int cap;
-  unsigned int alloc;
-  int *init;
-} Int_Vec;
-typedef struct UInt_Vec{
-  unsigned int size;
-  unsigned int cap;
-  unsigned int alloc;
-  unsigned int *init;
-} Int_Vec;
-typedef struct Vert_Vec{
-  unsigned int size;
-  unsigned int cap;
-  unsigned int alloc;
-  Vert *init;
-} Vert_Vec;
-typedef struct Simp_Vec{
-  unsigned int dim;
-  unsigned int size;
-  unsigned int cap;
-  unsigned int alloc;
-  Simp *init;
-} Simp_Vec;
-
-bool init_int_vec(Int_Vec *const);
-  
-  const int *const init = (int *) malloc(INT_VEC_INIT_SIZE);
-  
-  vec->init = init;
-  
-  assert(init != NULL);
-  
-  if(init == NULL){
-    vec->cap = 0;
-    return ALLOC_FAIL;
-  } else {
-    vec->cap = ((unsigned int) INT_VEC_INIT_SIZE) / sizeof(int);
-    return !ALLOC_FAIL;
-  }
-}
-bool init_uint_vec(UInt_Vec *const);
-  
-  const unsigned int *const init = (unsigned int *) malloc(UINT_VEC_INIT_SIZE);
-  
-  vec->init = init;
-  
-  assert(init != NULL);
-  
-  if(init == NULL){
-    vec->cap = 0;
-    return ALLOC_FAIL;
-  } else {
-    vec->cap = ((unsigned int) UINT_VEC_INIT_SIZE) / sizeof(unsigned int);
-    return !ALLOC_FAIL;
-  }
-}
-bool init_vert_vec(Vert_Vec *const);
-  
-  const Vert *const init = (Vert *) malloc(VERT_VEC_INIT_SIZE);
-  
-  vec->init = init;
-  
-  assert(init != NULL);
-  
-  if(init == NULL){
-    vec->cap = 0;
-    return ALLOC_FAIL;
-  } else {
-    vec->cap = ((unsigned int) VERT_VEC_INIT_SIZE) / sizeof(Vert);
-    return !ALLOC_FAIL;
-  }
-}
-bool init_simp_vec(Simp_Vec *const);
-  
-  const Simp *const init = (Simp *) malloc(SIMP_VEC_INIT_SIZE);
-  
-  vec->init = init;
-  
-  assert(init != NULL);
-  
-  if(init == NULL){
-    vec->cap = 0;
-    return ALLOC_FAIL;
-  } else {
-    vec->cap = ((unsigned int) SIMP_VEC_INIT_SIZE) / sizeof(Simp);
-    return !ALLOC_FAIL;
-  }
-}
-
-bool exp_int_vec(Int_Vec *const, const unsigned int);
-  
-  if(vec->cap == 0){
-    if(init_int_vec(vec) == ALLOC_FAIL){
-      return ALLOC_FAIL;
-    }
+#define DECLARE_SIMP_TYPES_AND_FUNCS( LAB, SIMP_TYPE, LAB_TYPE, PAR_TYPE, VERT_TYPE, VEC_TYPE, DIM_TYPE, INIT_ALLOC_SIZE, ALLOC_MULT )\
+  \
+  typedef struct SIMP_TYPE{\
+    LAB_TYPE lab;\
+    PAR_TYPE par;\
+    VERT_TYPE init;\
+  } SIMP_TYPE;\
+  \
+  typedef struct VEC_TYPE{\
+    DIM_TYPE dim;\
+    size_t width;\
+    size_t size;\
+    size_t cap;\
+    size_t alloc;\
+    SIMP_TYPE *init;\
+  } VEC_TYPE;\
+  \
+  inline bool init_simp_vec##LAB(VEC_TYPE *const vec, DIM_TYPE dim){\
+    const SIMP_TYPE *const init = malloc(INIT_ALLOC_SIZE);\
+    if(init){\
+      *vec = (VEC_TYPE) {.dim = dim, .size = 0, .cap = 0, .alloc = 0, .init = NULL};\
+      return 0;\
+    else{\
+      *vec = (VEC_TYPE) {.dim = dim, .size = 0, .cap = INIT_ALLOC_SIZE/((dim+1) * sizeof(ITEM_TYPE)), .alloc = INIT_ALLOC_SIZE, .init = init};\
+      return 1;\
+    }\
+  }\
+  \
+  inline bool exp_simp_vec##LAB(VEC_TYPE *const vec, const size_t num){\
+    if(vec->cap - vec->size >= num){\
+      return 0;\
+    }\
+    if(!vec->alloc){\
+      if(init_simp_vec##LAB(vec), vec->dim){\
+        return 1;\
+      }\
+    }\
+    if(SIZE_MAX / (sizeof(SIMP_TYPE) + vec->dim * sizeof(VERT_TYPE)) - vec->size < num){\
+      return 1;\
+    }\
+    const size_t req = (vec->size + num)*(sizeof(SIMP_TYPE) + vec->dim*sizeof(VERT_TYPE));\
+    const size_t allocMultInt = (size_t) ALLOC_MULT;\
+    const float allocMultFrac = ALLOC_MULT - allocMultInt;\
+    size_t new = vec->alloc;\
+    while(new < req){\
+      if(SIZE_MAX / new <= allocMultInt){\
+        new *= allocMultInt;\
+        if((size_t) (new*allocMultFrac) <= SIZE_MAX-new){\
+          new += (size_t) (new*allocMultFrac);\
+        } else {\
+          new = SIZE_MAX;\
+        }\
+      } else {\
+        new = SIZE_MAX;\
+      }\
+    }\
+    const SIMP_TYPE *const init = realloc(vec->init, new);\
+    if(init){\
+      vec->cap = new/(sizeof(SIMP_TYPE) + vec->dim*sizeof(VERT_TYPE));\
+      vec->alloc = new;\
+      vec->init = init;\
+      return 0;\
+    } else {\
+      return 1;\
+    }\
+  }\
+  \
+  inline bool app_to_simp_vec##LAB(const SIMP_TYPE *const app, VEC_TYPE *const vec, const size_t num){\
+    if(exp_simp_vec##LAB(vec, num)){\
+      return 1;\
+    } else {\
+      memcpy((VERT_TYPE *) (vec->init + vec->size) + vec->size * vec->dim, app, num * (sizeof(SIMP_TYPE) + vec->dim*sizeof(VERT_TYPE)));\
+      vec->size += num;\
+      return 0;\
+    }\
+  }\
+  \
+  inline void free_simp_vec##LAB(VEC_TYPE *const vec){\
+    free(vec->init);\
+    vec->size = 0;\
+    vec->cap = 0;\
+    vec->alloc = 0;\
+    vec->init = NULL;\
+  }\
+  \
+  inline void upd_simp_vec_dim##LAB(VEC_TYPE *const vec, DIM_TYPE dim){\
+    vec->dim = dim;\
+    vec->cap = (vec->alloc) / (sizeof(SIMP_TYPE) + (dim-1)*sizeof(VERT_TYPE));\
   }
   
-  const unsigned int req = vec->size + num;
-  if(req < vec->cap){
-    return !ALLOC_FAIL;
-  }
-  
-  unsigned int new = vec->cap;
-  while(new < req){
-    new = (unsigned int) (INT_VEC_MULT * new);
-  }
-  
-  const int *const init = (int *) realloc(vec->init, new * sizeof(int));
-  
-  assert(init != NULL);
-  
-  if(init == NULL){
-    return ALLOC_FAIL;
-  } else {
-    vec->init = init;
-    vec->cap = new;
-    vec->alloc = new * sizeof(int);
-    return !ALLOC_FAIL;
-  }
-}
-bool exp_uint_vec(UInt_Vec *const, const unsigned int);
-  
-  if(vec->cap == 0){
-    if(init_uint_vec(vec) == ALLOC_FAIL){
-      return ALLOC_FAIL;
-    }
-  }
-  
-  const unsigned int req = vec->size + num;
-  if(req < vec->cap){
-    return !ALLOC_FAIL;
-  }
-  
-  unsigned int new = vec->cap;
-  while(new < req){
-    new = (unsigned int) (UINT_VEC_MULT * new);
-  }
-  
-  const unsigned int *const init = (unsigned int *) realloc(vec->init, new * sizeof(unsigned int));
-  
-  assert(init != NULL);
-  
-  if(init == NULL){
-    return ALLOC_FAIL;
-  } else {
-    vec->init = init;
-    vec->cap = new;
-    vec->alloc = new * sizeof(unsigned int);
-    return !ALLOC_FAIL;
-  }
-}
-bool exp_vert_vec(Vert_Vec *const, const unsigned int);
-  
-  if(vec->cap == 0){
-    if(init_vert_vec(vec) == ALLOC_FAIL){
-      return ALLOC_FAIL;
-    }
-  }
-  
-  const unsigned int req = vec->size + num;
-  if(req < vec->cap){
-    return !ALLOC_FAIL;
-  }
-  
-  unsigned int new = vec->cap;
-  while(new < req){
-    new = (unsigned int) (VERT_VEC_MULT * new);
-  }
-  
-  const Vert *const init = (Vert *) realloc(vec->init, new * sizeof(Vert));
-  
-  assert(init != NULL);
-  
-  if(init == NULL){
-    return ALLOC_FAIL;
-  } else {
-    vec->init = init;
-    vec->cap = new;
-    vec->alloc = new * sizeof(Vert);
-    return !ALLOC_FAIL;
-  }
-}
-bool exp_simp_vec(Simp_Vec *const, const unsigned int);
-  
-  if(vec->cap == 0){
-    if(init_simp_vec(vec) == ALLOC_FAIL){
-      return ALLOC_FAIL;
-    }
-  }
-  
-  const unsigned int req = vec->size + num;
-  if(req < vec->cap){
-    return !ALLOC_FAIL;
-  }
-  
-  unsigned int new = vec->cap;
-  while(new < req){
-    new = (unsigned int) (SIMP_VEC_MULT * new);
-  }
-  
-  const Simp *const init = (Simp *) realloc(vec->init, new * (sizeof(Simp) + vec->dim * sizeof(Vert)));
-  
-  assert(init != NULL);
-  
-  if(init == NULL){
-    return ALLOC_FAIL;
-  } else {
-    vec->init = init;
-    vec->cap = new;
-    vec->alloc = new * (sizeof(Simp) + vec->dim * sizeof(Vert));
-    return !ALLOC_FAIL;
-  }
-}
-
-bool app_int_to_vec(const int *const, Int_Vec *const, const unsigned int);
-  
-  if(exp_int_vec(vec, num) == ALLOC_FAIL){
-    return ALLOC_FAIL;
-  } else {
-    int *const work = vec->init + vec->size;
-    memcpy(work, app, num * sizeof(int));
-    vec->size += num;
-    return !ALLOC_FAIL;
-  }
-}
-bool app_uint_to_vec(const unsigned int *const, UInt_Vec *const, const unsigned int);
-  
-  if(exp_uint_vec(vec, num) == ALLOC_FAIL){
-    return ALLOC_FAIL;
-  } else {
-    unsigned int *const work = vec->init + vec->size;
-    memcpy(work, app, num * sizeof(unsigned int));
-    vec->size += num;
-    return !ALLOC_FAIL;
-  }
-}
-bool app_vert_to_vec(const Vert *const, Vert_Vec *const, const unsigned int);
-  
-  if(exp_vert_vec(vec, num) == ALLOC_FAIL){
-    return ALLOC_FAIL;
-  } else {
-    Vert *const work = vec->init + vec->size;
-    memcpy(work, app, num * sizeof(Vert));
-    vec->size += num;
-    return !ALLOC_FAIL;
-  }
-}
-bool app_simp_to_vec(const Simp *const, Simp_Vec *const, const unsigned int);
-  
-  if(exp_simp_vec(vec, num) == ALLOC_FAIL){
-    return ALLOC_FAIL;
-  } else {
-    Simp *const work = (Simp *) ((Vert *) vec->init + vec->size * vec->dim) + vec->size;
-    memcpy(work, app, num * (sizeof(Simp) + vec->dim * sizeof(Vert)));
-    vec->size += num;
-    return !ALLOC_FAIL;
-  }
-}
-
-void free_int_vec(Int_Vec *const);
-  
-  free(vec->init);
-  *vec = (Int_Vec) {.size = 0, .cap = 0, .alloc = 0, .init = NULL};
-  
-}
-void free_uint_vec(UInt_Vec *const);
-  
-  free(vec->init);
-  *vec = (UInt_Vec) {.size = 0, .cap = 0, .alloc = 0, .init = NULL};
-  
-}
-void free_vert_vec(Vert_Vec *const);
-  
-  free(vec->init);
-  *vec = (Vert_Vec) {.size = 0, .cap = 0, .alloc = 0, .init = NULL};
-  
-}
-void free_simp_vec(Simp_Vec *const);
-
-void upd_simp_vec_dim(Simp_Vec *const);
-
 #endif

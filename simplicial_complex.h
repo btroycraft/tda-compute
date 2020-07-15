@@ -4,8 +4,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include <stdarg.h>
+#include <stdint.h>
 
+#include "vector.h"
 #include "simp.h"
 
 #ifndef MAIN_MEMORY_SIZE
@@ -22,10 +23,20 @@
 #endif
 
 typedef Simp_Comp struct{
-  unsigned int dim;
+  size_t dim;
   Simp_Vec init;
 };
 Simp_Comp;
 
-Simplicial_Complex *generate_simplicial_complex(double (*const)(int *, int, void *), void *const, const int, const int, const double);
+typedef Simp
+
+#define DECLARE_SIMP_COMP_TYPE_AND_FUNCS()\
+  \
+  typedef COMP_TYPE struct{\
+  DIM_TYPE dim;\
+  SIMP_VEC_TYPE init;\
+};\
+Simp_Comp;
+
+COMP_TYPE *gen_simp_comp(double (*const)(int *, int, void *), void *const, const int, const int, const double);
 #endif
