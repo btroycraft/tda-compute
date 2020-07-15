@@ -4,30 +4,18 @@
 
 #include "vector.h"
 
-DECLARE_VEC_TYPE_AND_FUNCS(uint, unsigned int, unsigned int, 4, 1000)
+DECLARE_VEC_TYPE_AND_FUNCS(uint, unsigned int, size_t, 1000, 2)
 
 int main(void){
+  return 0;  
+}
 
-  uint_Vec vec;
-  init_uint_vec(&vec);
-  
-  const int n = 250;
-
-  unsigned int arry[n];
-
-  for(int i = 0; i< n; i++){
-    arry[i] = i;
+bool afunc(uint_Vec *vec, unsigned int *const init){
+  if(init == NULL){
+    *vec = (uint_Vec) {.size=0, .cap=0, .alloc=0, .init=NULL};
+    return 1;
+  } else {
+    *vec = (uint_Vec) {.size=0, .cap=1000/sizeof(unsigned int), .alloc=1000, .init = init}; 
+    return 0;
   }
-  
-  app_uint_to_vec(arry, &vec, n);
-  
-  
-  for(int i = 0; i< n; i++){
-    printf("%d ", vec.init[i]);
-  }
-  printf("\n");
-  
-  free_uint_vec(&vec);
-  
-  return 0;
 }
