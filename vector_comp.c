@@ -1,31 +1,29 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include <limits.h>
 
-#include "vector.h"
+#include "vector_comp.h"
 
-bool init_vec(Vec *vec){
+bool init_vec_comp(Vec_Comp *vec){
   void *init = malloc(VEC_SIZE_INIT);
   if(init){
-    *vec = (Vec) {.add = NULL, .init = NULL, .size = 0, .alloc = 0};
     return false;
   }
   else{
-    *vec = (Vec) {.add = NULL, .init = init, .size = 0, .alloc = VEC_SIZE_INIT};
+    *vec = (Vec_Comp) {.add = NULL, .init = init, .width = 0, .size = 0, .alloc = VEC_SIZE_INIT};
     return true;
   }
 }
 
-void uninit_vec(Vec *vec){
-  if(!vec->init){
-    free(vec->init);
-  }
-  *vec = (Vec) {.add = NULL, .init = NULL, .size = 0, .alloc=0};
+void uninit_vec(Vec_Comp *vec){
+  free(vec->init);
 }
 
-bool exp_vec(Vec *vec, size_t num){
+bool exp_vec(Vec_Comp *vec, size_t num){
 
-  size_t req = vec->size + num;
+  size_t req = (vec->size + num)*vec->width;
+  req = req / CHAR_WIDTH + (req % CHAR_WIDTH > 0); 
   if(req <= alloc){
     return false;
   }
@@ -37,7 +35,8 @@ bool exp_vec(Vec *vec, size_t num){
 
   void *init = realloc(vec->init, new);
   if(init){
-    *vec = (Vec) {.add = NULL, .init = init, .size = vec->size, .alloc = new};
+    vec->init = init;
+	vec->alloc = new;
     return false;
   } else {
     return true;

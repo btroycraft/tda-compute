@@ -19,7 +19,7 @@ typedef Simp_Comp struct{
 };
 Simp_Comp;
 
-gen_simp_comp(uint_max_t maxVert, uint_fast8_t maxDim, bool (*inclFunc)(uintmax_t*, size_t, *float, void*)){
+gen_simp_comp(int maxVert, int maxDim, bool (*inclFunc)(int*, size_t, *float, void*)){
 
   Simp_Comp *comp = malloc(sizeof(Simp_Comp) + 3*(maxDim+1)*sizeof(Vec) + (maxDim+1)*sizeof(size_t));
   Vec *simpVec = (char *) comp + sizeof(Simp_Comp);
