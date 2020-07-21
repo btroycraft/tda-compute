@@ -5,33 +5,99 @@
 
 #include "vector_comp.h"
 
-bool init_vec_comp(Vec_Comp *vec){
-  void *init = malloc(VEC_SIZE_INIT);
-  if(init){
-    return false;
-  }
-  else{
-    *vec = (Vec_Comp) {.add = NULL, .init = init, .width = 0, .size = 0, .alloc = VEC_SIZE_INIT};
+bool init_vec_c(Vec_C *vec){
+  void *init = malloc(VEC_C_ALLOC_INIT);
+  if(!init){
     return true;
   }
+  *vec = (Vec_C) {.add = NULL, .init = init, .width = 0, .size = 0, .alloc = VEC_C_ALLOC_INIT};
+  return false;
 }
 
-void uninit_vec(Vec_Comp *vec){
+void uninit_vec_c(Vec_C *vec){
   free(vec->init);
+  return;
 }
 
-bool exp_vec(Vec_Comp *vec, size_t num){
-
+bool exp_size_vec_c(Vec_C *vec, size_t num){
   size_t req = (vec->size + num)*vec->width;
   req = req / CHAR_WIDTH + (req % CHAR_WIDTH > 0); 
   if(req <= alloc){
     return false;
   }
-  
   size_t new = vec->alloc;
   while(new < req){
-    new *= VEC_SIZE_MULT;
+    new *= VEC_C_ALLOC_MULT;
   }
+  void *init = realloc(vec->init, new);
+  if(!init){
+    return true;
+  }
+  vec->init = init;
+  vec->alloc = new;
+  return false;
+}
+
+bool exp_width_vec_c(Vec_C *vec, size_t num){
+  size_t width = vec->width;
+  if(num <= (1 >> width) - 1){
+	return false;
+  }
+  while(num > (1 >> width) - 1){
+	++width;
+  }
+  size_t req = vec->size*width;
+  req = req / CHAR_WIDTH + (req % CHAR_WIDTH > 0); 
+  size_t new = vec->alloc;
+  while(new < req){
+    new *= VEC_C_ALLOC_MULT;
+  }
+  void *init = malloc(vec->init, new);
+  if(!init){
+    return true;
+  }
+  void *temp = alloca((width + CHAR_WIDTH - 1) / CHAR_WIDTH + ((width + CHAR_WIDTH - 1) % CHAR_WIDTH > 0));
+  void *workIn = vec->init;
+  void *workOut = temp;
+  size_t offIn = 0;
+  size_t offOut = 0;
+  
+  size_t charWidth = (width + offOut) / CHAR_WIDTH + ((width + offOut) % CHAR_WIDTH > 0);
+  while(){
+    for(int ind = 0; ind + sizeof(int) - 1 < intWidth; ind += (sizeof(int) - 1)){
+	  *workOut = *((int*) workIn) << offIn >> offOut;
+	  workOut = (char*) workOut + (sizeof(int) - 1);
+	}
+  }
+  
+  
+  
+  int ind = 0;
+  
+  
+  
+  vec->width = width;
+  
+}
+  
+  
+  size_t req = vec->size*(vec->width+num);
+  req = req / CHAR_WIDTH + (req % CHAR_WIDTH > 0); 
+  if(req > alloc){
+    size_t new = vec->alloc;
+	while(new < req){
+		new *= VEC_C_ALLOC_MULT;
+	}
+	void *init = realloc(vec->init, new);
+	if(init){
+	  vec->init = init;
+      vec->alloc = new;
+    } else {
+      return true;
+    }
+  }
+  
+  
 
   void *init = realloc(vec->init, new);
   if(init){
@@ -42,6 +108,7 @@ bool exp_vec(Vec_Comp *vec, size_t num){
     return true;
   }
 }
+
 
 bool app_to_vec(Vec *vec, void *app, size_t num){
   if(exp_vec(vec, num)){
