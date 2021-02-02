@@ -9,137 +9,210 @@ static const SIZE_MAX_DOUBLE = size_max_double();
 
 bool init_vec_c(Vec_C *vec){
 
+  // Initialize vector with initial allocation
+
   void *init = malloc(ALLOC_INIT_VEC_C);
   if(!init){
     return true;
   }
 
-  *vec = (Vec_C) {.init = init, .width = 0, .size = 0, .alloc = ALLOC_INIT_VEC_C, .add = NULL};
+  *vec = (Vec_C) {.init = init, .width = 0, .next = 0, .off = 0, .alloc = ALLOC_INIT_VEC_C, .add = NULL};
 
   return false;
 }
 
 void uninit_vec_c(Vec_C *vec){
 
+  // Uninitialize vector by freeing associated allocation
+
   free(vec->init);
 
   return;
 }
 
-bool exp_alloc_vec_c(Vec_C *vec, size_t num){
+bool expand_alloc_vec_c(Vec_C *vec, size_t req){
 
-  size_t width = vec->width;
+  // Expand vector allocation to be at least "req" in size
 
-  // Check for possible size_t overflow
-
-  if(width > CHAR_WIDTH){
-
-    size_t q = (SIZE_MAX - sizeof(unsigned int)) / width;
-    size_t r = (SIZE_MAX - sizeof(unsigned int)) - width*q;
-
-    if(num > CHAR_WIDTH*q + (CHAR_WIDTH*(r+1)-1) / width + 1 - vec->size){
-      return true;
-    }
-  } else{
-
-    if(num > SIZE_MAX - sizeof(unsigned int) + 1 - vec->size){
-        return true;
-    }
-  }
-
-  // Get required number of bytes to store the compressed vector
-
-  size_t req;
+  size_t reqExp;
   {
-    size_t q1 = num / CHAR_WIDTH;
-    size_t r1 = num - CHAR_WIDTH*q1;
 
-    size_t v2 = vec->size - 1;
-    size_t q2 = v2 / CHAR_WIDTH;
-    size_t r2 = v2 - CHAR_WIDTH*q2;
+    // Get new allocation size
 
-    req = width*(q1+q2) + width*(r1+r2) / CHAR_WIDTH + sizeof(unsigned int);
+    float temp;
+    for(temp = vec->alloc; temp <= req; temp *= ALLOC_MULT_VEC_C);
+
+    reqExp = temp < SIZE_MAX ? (size_t) temp : SIZE_MAX;
   }
 
-  if(req > vec->alloc){
+  void *init;
+  {
 
-    {
-      // Expand vector allocation size by multiplication factor until required size is met
+    // Make reallocation
 
-      float reqFloat;
-      for(reqFloat = vec->alloc; reqFloat < req; reqFloat *= ALLOC_MULT_VEC_C);
-      if{reqFloat > req}{
-        req = reqFloat < SIZE_MAX ? (float) reqFloat : SIZE_MAX;
-      }
+    if(*init = realloc(vec->init, reqExp)){
+      vec->alloc = reqExp;
     }
-
-    // Reallocate vector using new size
-
-    void *init = realloc(vec->init, reqExp);
-    if(!init){
+    else if(*init = realloc(vec->init, req)){
+      vec->alloc = req;
+    }
+    else{
       return true;
     }
-
-    vec->init = init;
-    vec->alloc = req;
   }
 
   return false;
 }
 
-bool exp_width_vec_c(Vec_C *vec, size_t width){
+bool expand_cap_vec_c(Vec_C *vec, size_t num){
 
-  size_t widthOld = vec->width;
+  // Expand vector capacity to occomodate at least "num" new entries
 
-  // Check for possible size_t overflow
+  size_t width = vec->width;
+  size_t next = vec->next;
+  size_t off = vec->off;
 
-  if(width > CHAR_WIDTH){
-
-    size_t q = (SIZE_MAX - sizeof(unsigned int)) / width;
-    size_t r = (SIZE_MAX - sizeof(unsigned int)) - width*q;
-
-    if(num > CHAR_WIDTH*q + (CHAR_WIDTH*(r+1)-1) / width + 1 - vec->size){
-      return true;
-    }
+  if(num == 0 || width == 0){
+    return false;
   }
-
-  // Get required number of bytes to store the compressed vector
 
   size_t req;
   {
-    size_t q = (vec->size - 1) / CHAR_WIDTH;
-    size_t r = (vec->size - 1) - CHAR_WIDTH*q;
+    // Get required allocation size and check for possible size_t overflows
 
-    req = width*q + width*r / CHAR_WIDTH + sizeof(unsigned int);
-  }
+    size_t q = num / CHAR_WIDTH;
+    size_t r = num - CHAR_WIDTH*q;
 
-  if(req > vec->alloc){
+    req = next;
 
     {
-      // Expand vector allocation size by multiplication factor until required size is met
+      if(q > SIZE_MAX / width){
+        return true;
+      }
 
-      float reqFloat;
-      for(reqFloat = vec->alloc; reqFloat < req; reqFloat *= ALLOC_MULT_VEC_C);
-      if{reqFloat > req}{
-        req = reqFloat < SIZE_MAX ? (float) reqFloat : SIZE_MAX;
+      size_t temp = width*q;
+      if(req > SIZE_MAX - temp){
+        return true;
+      }
+
+      req += temp;
+    }
+
+    {
+      size_t temp = (width*r + off + (CHAR_WIDTH-1));
+      if(req > SIZE_MAX - temp){
+        return true;
+      }
+
+      req += temp;
+    }
+  }
+
+  if(expand_alloc_vec_c(vec, req)){
+    return true;
+  }
+
+  return false;
+}
+
+void shift_left_vec_c(void *loc, size_t num, int shift){
+
+  // Shift an array of bytes to the left by "shift" bits
+  // Leftmost bits are removed, with padding 0s added on the right
+
+  size_t shiftAbs = (size_t) (shift * ((shift >= 0) - (shift < 0)));
+  shiftAbs = shiftAbs / CHAR_WIDTH < num ? shiftAbs : CHAR_WIDTH*num;
+
+  size_t startIn = 0;
+  size_t startOut = 0;
+
+  size_t endIn = num;
+  size_t endOut = num;
+
+  if(shift < 0){
+
+    size_t startIn = shiftAbs / CHAR_WIDTH;
+    size_t 
+    size_t off1 = shiftAbs - CHAR_WIDTH*startIn;
+    size_t off2 = CHAR_WIDTH - off1;
+
+    for(size_t ind = )
+
+
+
+  }
+  else{
+
+    shift = shift / CHAR_WIDTH < num ? shift : CHAR_WIDTH*num;
+
+    shiftByte = shift / CHAR_WIDTH;
+    shiftBit = shift - CHAR_WIDTH*shiftByte;
+  }
+
+
+
+  return false;
+}
+
+bool change_width_vec_c(Vec_C *vec, size_t width){
+
+  size_t widthOut = width;
+  size_t widthIn = vec->width;
+  size_t next = vec->next;
+  size_t off = vec->off;
+
+  if((next == 0 && offset == 0) || width == widthOld){
+    return false;
+  }
+
+  if(widthOut > widthIn){
+
+    size_t req;
+    {
+      // Get required allocation size and check for possible size_t overflows
+
+      size_t q = next / widthIn;
+      size_t r = next - widthIn*q;
+
+      {
+        if(q > SIZE_MAX / widthOut){
+          return true;
+        }
+
+        req = widthOut*q;
+      }
+
+      {
+        size_t temp = (widthOut*((CHAR_WIDTH*r + off) / widthIn) + (CHAR_WIDTH-1)) / CHAR_WIDTH;
+        if(req > SIZE_MAX - temp){
+          return true;
+        }
+
+        req += temp;
       }
     }
 
-    // Reallocate vector using new size
-
-    void *init = realloc(vec->init, reqExp);
-    if(!init){
+    if(expand_alloc_vec_c(vec, req)){
       return true;
     }
-
-    vec->init = init;
-    vec->alloc = req;
   }
+
+  if(widthIn < widthOut){
+
+    size_t sizeTrans = (widthOut + 2*(CHAR_WIDTH-1)) / CHAR_WIDTH;
+
+    unsigned char *trans1 = (unsigned char*) alloca(sizeTrans);
+
+
+
+
+  }
+  size_t sizeTrans = widthIn
 
   size_t offIn = 0;
   size_t offOut = 0;
-  unsigned int *workIn = vec->init;
-  unsigned int *workOut = init;
+  char *workIn = vec->init;
+  char *workOut = init;
 
 for(size_t ind = 0; ind < vec->size; ++ind){
 
