@@ -7,70 +7,13 @@
 
 static const SIZE_MAX_DOUBLE = size_max_double();
 
-bool init_vec_c(Vec_C *vec){
-
-  // Initialize vector with initial allocation
-
-  void *init = malloc(ALLOC_INIT_VEC_C);
-  if(!init){
-    return true;
-  }
-
-  *vec = (Vec_C) {.init = init, .width = 0, .next = 0, .off = 0, .alloc = ALLOC_INIT_VEC_C, .add = NULL};
-
-  return false;
-}
-
-void uninit_vec_c(Vec_C *vec){
-
-  // Uninitialize vector by freeing associated allocation
-
-  free(vec->init);
-
-  return;
-}
-
-bool expand_alloc_vec_c(Vec_C *vec, size_t req){
-
-  // Expand vector allocation to be at least "req" in size
-
-  size_t reqExp;
-  {
-
-    // Get new allocation size
-
-    float temp;
-    for(temp = vec->alloc; temp <= req; temp *= ALLOC_MULT_VEC_C);
-
-    reqExp = temp < SIZE_MAX ? (size_t) temp : SIZE_MAX;
-  }
-
-  void *init;
-  {
-
-    // Make reallocation
-
-    if(*init = realloc(vec->init, reqExp)){
-      vec->alloc = reqExp;
-    }
-    else if(*init = realloc(vec->init, req)){
-      vec->alloc = req;
-    }
-    else{
-      return true;
-    }
-  }
-
-  return false;
-}
-
-bool expand_cap_vec_c(Vec_C *vec, size_t num){
+bool expand_cap_vec_c(Vec_C *vec, const size_t num){
 
   // Expand vector capacity to occomodate at least "num" new entries
 
-  size_t width = vec->width;
-  size_t next = vec->next;
-  size_t off = vec->off;
+  const size_t width = vec->width;
+  const size_t next = vec->next;
+  const size_t off = vec->off;
 
   if(num == 0 || width == 0){
     return false;
@@ -80,8 +23,8 @@ bool expand_cap_vec_c(Vec_C *vec, size_t num){
   {
     // Get required allocation size and check for possible size_t overflows
 
-    size_t q = num / CHAR_WIDTH;
-    size_t r = num - CHAR_WIDTH*q;
+    const size_t q = num / CHAR_WIDTH;
+    const size_t r = num - CHAR_WIDTH*q;
 
     req = next;
 
@@ -90,7 +33,7 @@ bool expand_cap_vec_c(Vec_C *vec, size_t num){
         return true;
       }
 
-      size_t temp = width*q;
+      const size_t temp = width*q;
       if(req > SIZE_MAX - temp){
         return true;
       }
@@ -99,7 +42,7 @@ bool expand_cap_vec_c(Vec_C *vec, size_t num){
     }
 
     {
-      size_t temp = (width*r + off + (CHAR_WIDTH-1));
+      const size_t temp = (width*r + off + (CHAR_WIDTH-1));
       if(req > SIZE_MAX - temp){
         return true;
       }
@@ -118,10 +61,10 @@ bool expand_cap_vec_c(Vec_C *vec, size_t num){
 void shift_left_vec_c(void *loc, size_t num, int shift){
 
   // Shift an array of bytes to the left by "shift" bits
-  // Leftmost bits are removed, with padding 0s added on the right
+  // Leading bits are removed, with trailing 0s added
 
-  size_t shiftAbs = (size_t) (shift * ((shift >= 0) - (shift < 0)));
-  shiftAbs = shiftAbs / CHAR_WIDTH < num ? shiftAbs : CHAR_WIDTH*num;
+  const size_t shiftAbs = (const size_t) abs(shift);
+  const size_t shiftAbsTrunc = shiftAbs / CHAR_WIDTH < num ? shiftAbs : CHAR_WIDTH*num;
 
   size_t startIn = 0;
   size_t startOut = 0;
@@ -132,7 +75,7 @@ void shift_left_vec_c(void *loc, size_t num, int shift){
   if(shift < 0){
 
     size_t startIn = shiftAbs / CHAR_WIDTH;
-    size_t 
+    size_t
     size_t off1 = shiftAbs - CHAR_WIDTH*startIn;
     size_t off2 = CHAR_WIDTH - off1;
 
@@ -161,7 +104,7 @@ bool change_width_vec_c(Vec_C *vec, size_t width){
   size_t next = vec->next;
   size_t off = vec->off;
 
-  if((next == 0 && offset == 0) || width == widthOld){
+  if((next == 0 && off == 0) || width == widthOld){
     return false;
   }
 
