@@ -7,31 +7,51 @@
 #include "vec_compr_int.h"
 
 // Shift an array of bytes to the left by "shift" bits
-// Any "shift" equal to num*CHAR_BIT or greater will zero the array
+// Expected shift values at most CHAR_BIT*sizeof(uint_fast32_t)
 
 inline void shift_bits_left_vec_compr_int(void* loc, size_t num, size_t shift){
 
-  // Break shift into byte and bit parts
+  uint_fast32_t *ptrWord = (uint_fast32_t *) loc;
+  unsigned char *ptrByteLast = (unsigned char *) loc + num - sizeof(uint_fast32_t);
 
-  size_t shiftBytes = shift / CHAR_BIT;
-  size_t shiftBits = shift - CHAR_BIT*shiftBytes;
-  size_t shiftBitsComp = CHAR_BIT - shiftBits;
+  uint_fast32_t *ptrWord;
+  {
+    size_t shiftComp = CHAR_BIT*sizeof(uint_fast32_t) - shift;
+    for(ptrWord = (uint_fast32_t *) loc; (unsigned char *) ptrWord < ptrByteLast, ++ptrWord){
+      *ptrWord = (*ptrWord << shift) + (*(ptrWord+1) >> shiftComp);
+    }
+  uint_fast32_t lastWord;
+  {
+    lastWord = 0;
 
-  size_t end = tern_size_t_vec_compr_int(shiftBytes < num, num - shiftBytes - 1, 0);
+    unsigned char *ptrIn, *ptrOut;
+    for(ptr = ; ind )
+
+  } = 0;
+
 
   // Perform the shift
 
-  for(size_t ind = 0; ind < end; ++ind){
+  if(shiftWords*sizeof(uint_fast8_t) + shiftBytes < num){
 
-    ((unsigned char*) loc)[ind] = (((unsigned char*) loc)[ind] << shiftBits) + (((unsigned char*) loc)[ind+1] >> shiftBitsComp);
+    {
+    for(size_t ind = 0; ind < )
+      ((unsigned char*) loc)[ind] =
+    }
+    shift
+
+    for(size_t ind = 0;)
+
+    for(size_t ind = 0; ind < num - shiftBytes - 1; ++ind){
+
+      ((unsigned char*) loc)[ind] = (((unsigned char*) loc)[ind + shiftBytes] << shiftBits) + (((unsigned char*) loc)[ind + shiftBytes + 1] >> shiftBitsComp);
+    }
+
+    ((unsigned char*) loc)[num - shiftBytes - 1] = ((unsigned char*) loc)[num-1] << shiftBits;
   }
 
-  if(shiftBytes < num){
-    ((unsigned char*) loc)[end] = ((unsigned char*) loc)[num] << shiftBits;
-    memset((unsigned char*) loc + end, 0, shiftBytes);
-  }
-  else{
-
+  if(shiftBytes > 0){
+    memset((unsigned char*) loc + num - shiftBytes, 0, shiftBytes);
   }
 
   return;

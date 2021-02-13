@@ -8,7 +8,6 @@
 
 // Shift an array of bytes by "shift" bits
 // Negative "shift" shifts to the left, positive to the right
-// Expected "shift" is no more than CHAR_BIT
 
 void shift_bits_vec_c(void* loc, size_t num, int shift){
 

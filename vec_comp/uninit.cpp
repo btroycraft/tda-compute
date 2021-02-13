@@ -8,9 +8,9 @@
 
 // Uninitialize vector by freeing associated allocation
 
-void uninit_vec_compr(Vec_Compr *vec){
+inline void uninit_vec_compr(Vec_Compr &vec){
 
-  free(vec->init);
+  delete[] vec.init;
 
   return;
 }
